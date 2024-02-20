@@ -29,16 +29,22 @@ criterion = CrossEntropyLoss()
 
 model.train()
 for epoch in range(10):  # Example: Train for 1 epoch
+    print(f"Epoch {epoch}")
     for inputs, labels in train_loader:
         inputs, labels = inputs.to(device), labels.to(device)
+        print(inputs.shape, labels.shape)
 
         # Forward pass
         outputs = model(inputs).logits
+        print("test1")
         loss = criterion(outputs, labels)
+        print("test2")
 
         # Backward and optimize
         optimizer.zero_grad()
+        print("test3")
         loss.backward()
+        print("test4")
         optimizer.step()
+        print("test5")
         print(f"Epoch {epoch}, Loss: {loss.item()}")
-
