@@ -1,4 +1,3 @@
-
 import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
@@ -6,46 +5,61 @@ from transformers import ConvNextV2ForImageClassification, ConvNextV2Config
 from torch.optim import AdamW
 from torch.nn import CrossEntropyLoss
 
-# Define transformations: Resize to 224x224, convert to tensor, and normalize (as ConvNeXt expects)
-transform = transforms.Compose([
-    transforms.Resize((800, 800)),  # Resize images to 224x224
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485], std=[0.229]),  # Adjusted for 1 channel
-])
+import h5py
 
+def explore_hdf5_group(group, prefix=''):
+    """
+    Recursively explores and prints information about an HDF5 group and its contents.
 
-# Load MNIST dataset
-train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+    :param group: h5py Group object to explore.
+    :param prefix: String prefix for hierarchical display.
+    """
+    for key in group.keys():
+        item = group[key]
+        path = f"{prefix}/{key}"
+        if isinstance(item, h5py.Dataset):
+            # Print dataset information
+            print(f"Dataset: {path}")
+            print(f"  Shape: {item.shape}, Dtype: {item.dtype}")
+            print_dataset_attributes(item)
+        elif isinstance(item, h5py.Group):
+            # Print group information and explore recursively
+            print(f"Group: {path}")
+            print_group_attributes(item)
+            explore_hdf5_group(item, prefix=path)
 
-# Initialize the model
-config = ConvNextV2Config(num_channels=1, patch_size=4, image_size=800, num_labels=10)
-model = ConvNextV2ForImageClassification(config)
+def print_group_attributes(group):
+    """
+    Prints attributes of an HDF5 group.
 
-# Training setup
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-optimizer = AdamW(model.parameters(), lr=5e-5)
-criterion = CrossEntropyLoss()
+    :param group: h5py Group object.
+    """
+    for attr in group.attrs:
+        print(f"  Attribute - {attr}: {group.attrs[attr]}")
 
-model.train()
-for epoch in range(1):  # Example: Train for 1 epoch
-    print(f"Epoch {epoch}")
-    for inputs, labels in train_loader:
-        inputs, labels = inputs.to(device), labels.to(device)
-        print(inputs.shape, labels.shape)
+def print_dataset_attributes(dataset):
+    """
+    Prints attributes of an HDF5 dataset.
 
-        # Forward pass
-        outputs = model(inputs).logits
-        print("test1")
-        loss = criterion(outputs, labels)
-        print("test2")
+    :param dataset: h5py Dataset object.
+    """
+    for attr in dataset.attrs:
+        print(f"  Attribute - {attr}: {dataset.attrs[attr]}")
 
-        # Backward and optimize
-        optimizer.zero_grad()
-        print("test3")
-        loss.backward()
-        print("test4")
-        optimizer.step()
-        print("test5")
-        print(f"Epoch {epoch}, Loss: {loss.item()}")
+def main(hdf5_path):
+    """
+    Main function to open and explore an HDF5 file.
+
+    :param hdf5_path: Path to the HDF5 file.
+    """
+    try:
+        with h5py.File(hdf5_path, 'r') as file:
+            print(f"Exploring HDF5 file: {hdf5_path}")
+            explore_hdf5_group(file)
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    hdf5_path = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'  # Update this to the path of your HDF5 file
+    main(hdf5_path)
+
