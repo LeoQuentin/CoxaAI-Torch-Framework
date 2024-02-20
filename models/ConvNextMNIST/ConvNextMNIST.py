@@ -1,3 +1,4 @@
+
 import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
@@ -28,7 +29,7 @@ optimizer = AdamW(model.parameters(), lr=5e-5)
 criterion = CrossEntropyLoss()
 
 model.train()
-for epoch in range(10):  # Example: Train for 1 epoch
+for epoch in range(1):  # Example: Train for 1 epoch
     print(f"Epoch {epoch}")
     for inputs, labels in train_loader:
         inputs, labels = inputs.to(device), labels.to(device)
