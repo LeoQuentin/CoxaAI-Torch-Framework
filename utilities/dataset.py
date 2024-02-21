@@ -5,7 +5,6 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 import pytorch_lightning as pl
-from torchvision.transforms.functional import to_tensor
 
 
 class H5FoldDataset(Dataset):
@@ -60,9 +59,6 @@ class H5FoldDataset(Dataset):
             image = h5_file[f'fold_{fold}/image'][index]
             target = h5_file[f'fold_{fold}/{self.target_var}'][index]  # Use the specified target
 
-            # diagnostic print
-            print("Original shape:", image.shape)  # Diagnostic print
-
             # Swap channels to PyTorch format
             if self.tf_to_torch_channelswap:
                 image = np.transpose(image, (2, 0, 1))
@@ -111,8 +107,8 @@ class H5DataModule(pl.LightningDataModule):
                  data_file,
                  batch_size=16,
                  train_folds=None,
-                 val_fold=None,
-                 test_fold=None,
+                 val_folds=None,
+                 test_folds=None,
                  train_transform=None,
                  val_transform=None,
                  test_transform=None,
@@ -123,8 +119,8 @@ class H5DataModule(pl.LightningDataModule):
         self.data_file = data_file
         self.batch_size = batch_size
         self.train_folds = train_folds if train_folds is not None else [0, 1, 2]
-        self.val_fold = val_fold if val_fold is not None else [4]
-        self.test_fold = test_fold if test_fold is not None else [3]
+        self.val_folds = val_folds if val_folds is not None else [4]
+        self.test_folds = test_folds if test_folds is not None else [3]
         self.train_transform = train_transform
         self.val_transform = val_transform
         self.test_transform = test_transform
@@ -155,12 +151,12 @@ class H5DataModule(pl.LightningDataModule):
                                                folds=self.train_folds,
                                                transform=self.train_transform)
             self.val_dataset = H5FoldDataset(**common_params,
-                                             folds=self.val_fold,
+                                             folds=self.val_folds,
                                              transform=self.val_transform)
 
         if stage == 'test' or stage is None:
             self.test_dataset = H5FoldDataset(**common_params,
-                                              folds=self.test_fold,
+                                              folds=self.test_folds,
                                               transform=self.test_transform)
 
     def train_dataloader(self):
