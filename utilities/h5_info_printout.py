@@ -57,6 +57,5 @@ def main(hdf5_path):
         print(f"Error: {e}")
 
 
-if __name__ == "__main__":
-    hdf5_path = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'  # Update this to the path of your HDF5 file
-    main(hdf5_path)
+hdf5_path = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'
+main(hdf5_path)
