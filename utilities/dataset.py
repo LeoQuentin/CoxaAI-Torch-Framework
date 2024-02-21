@@ -62,7 +62,7 @@ class H5FoldDataset(Dataset):
 
             # Swap channels to PyTorch format
             if self.tf_to_torch_channelswap:
-                image = np.transpose(image, (2, 0, 1))
+                image = np.transpose(image, (0, 3, 1, 2))
 
             # Stack channels if specified
             if self.stack_channels:
