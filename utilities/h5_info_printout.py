@@ -1,4 +1,5 @@
 import h5py
+import numpy as np
 
 
 def explore_hdf5_group(group, prefix=''):
@@ -16,6 +17,8 @@ def explore_hdf5_group(group, prefix=''):
             print(f"Dataset: {path}")
             print(f"  Shape: {item.shape}, Dtype: {item.dtype}")
             print_dataset_attributes(item)
+            if key in ['diagnosis', 'target']:
+                print_unique_values(item, key)
         elif isinstance(item, h5py.Group):
             # Print group information and explore recursively
             print(f"Group: {path}")
@@ -41,6 +44,18 @@ def print_dataset_attributes(dataset):
     """
     for attr in dataset.attrs:
         print(f"  Attribute - {attr}: {dataset.attrs[attr]}")
+
+
+def print_unique_values(dataset, dataset_name):
+    """
+    Prints unique values of a specified dataset.
+
+    :param dataset: h5py Dataset object.
+    :param dataset_name: Name of the dataset (e.g., 'diagnosis', 'target').
+    """
+    data = dataset[:]
+    unique_values = np.unique(data)
+    print(f"  Unique values in {dataset_name}: {unique_values}")
 
 
 def main(hdf5_path):
