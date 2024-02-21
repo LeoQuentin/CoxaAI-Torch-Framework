@@ -1,2 +1,168 @@
+# Description: PyTorch Dataset and DataModule classes for loading H5 datasets to PyTorch models.
+from torch.utils.data import DataLoader
 import h5py
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+import pytorch_lightning as pl
+from torchvision.transforms.functional import to_tensor
 
+
+class H5FoldDataset(Dataset):
+    def __init__(self, file_path, folds, target_var='target', transform=None, stack_channels=False):
+        """
+        Initialize the Dataset object for loading data from specified folds in an H5 file.
+
+        Parameters
+        ----------
+        file_path : str
+            The path to the file containing the dataset.
+        folds : list of int
+            A list of integers representing the folds of the dataset to fetch.
+        target_var : str, optional
+            The name of the target variable, by default 'target'.
+        transform : callable, optional
+            A function/transform to apply to the data, by default None.
+        stack_channels : bool, optional
+            Whether to stack the channels of the images to create a 3-channel image,
+            by default False.
+        """
+        self.file_path = file_path
+        self.folds = folds
+        self.target_var = target_var
+        self.transform = transform
+        self.stack_channels = stack_channels
+
+        with h5py.File(self.file_path, 'r') as h5_file:
+            self.lengths = [h5_file[f'fold_{fold}/image'].shape[0] for fold in self.folds]
+            self.index_mapping = []
+            for i, fold in enumerate(self.folds):
+                for j in range(self.lengths[i]):
+                    self.index_mapping.append((fold, j))
+
+    def __len__(self):
+        return sum(self.lengths)
+
+    def __getitem__(self, idx):
+        fold, index = self.index_mapping[idx]
+        with h5py.File(self.file_path, 'r') as h5_file:
+            image = h5_file[f'fold_{fold}/image'][index]
+            target = h5_file[f'fold_{fold}/{self.target_var}'][index]  # Use the specified target
+
+            # Swap channels to PyTorch format
+            image = np.transpose(image, (2, 0, 1))
+            if self.stack_channels:
+                image = np.repeat(image, 3, axis=0)
+            image = to_tensor(image)
+
+            # Apply transform if specified
+            if self.transform:
+                image = self.transform(image)
+
+        return image, torch.tensor(target, dtype=torch.float32)
+
+
+class H5DataModule(pl.LightningDataModule):
+    """
+    LightningDataModule for loading and preparing H5 datasets for model training and evaluation.
+
+    Parameters
+    ----------
+    data_file : str
+        File path of the H5 dataset.
+    train_folds : list of int
+        List of integers specifying the training folds.
+    val_fold : list of int
+        List of integers specifying the validation fold.
+    test_fold : list of int
+        List of integers specifying the testing fold.
+    batch_size : int
+        Batch size for the dataloaders.
+    transform : callable, optional
+        Optional transform to be applied on a sample, by default None.
+    stack_channels : bool, optional
+        Whether to stack the single-channel data to create 3-channel images, by default False.
+    target_var : str, optional
+        Name of the target variable in the dataset ('target' or 'diagnosis'), by default 'target'.
+    """
+    def __init__(self,
+                 data_file,
+                 train_folds=[0, 1, 2],
+                 val_fold=[4], test_fold=[3],
+                 batch_size=16,
+                 transform=None,
+                 stack_channels=False,
+                 target_var='target'):
+
+        super().__init__()
+        self.data_file = data_file  # File path
+        self.train_folds = train_folds
+        self.val_fold = val_fold
+        self.test_fold = test_fold
+        self.batch_size = batch_size
+        self.transform = transform
+        self.stack_channels = stack_channels
+        self.target_var = target_var
+
+    def setup(self, stage=None):
+        """
+        Initializes datasets for different stages of training, validation, and testing.
+
+        Parameters
+        ----------
+        stage : str, optional
+            Specifies the stage for which to set up the data.
+            Can be 'fit', 'validate', 'test', or None.
+            If None, datasets for all stages are initialized.
+        """
+        if stage == 'fit' or stage is None:
+            self.train_dataset = H5FoldDataset(self.data_file,
+                                               self.train_folds,
+                                               self.target_var,
+                                               self.transform,
+                                               self.stack_channels)
+            self.val_dataset = H5FoldDataset(self.data_file,
+                                             self.val_fold,
+                                             self.target_var,
+                                             self.transform,
+                                             self.stack_channels)
+
+        if stage == 'test' or stage is None:
+            self.test_dataset = H5FoldDataset(self.data_file,
+                                              self.test_fold,
+                                              self.target_var,
+                                              self.transform,
+                                              self.stack_channels)
+
+    def train_dataloader(self):
+        """
+        Creates a DataLoader for the training dataset.
+
+        Returns
+        -------
+        DataLoader
+            A DataLoader instance configured for the training dataset, with shuffling enabled.
+        """
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+
+    def val_dataloader(self):
+        """
+        Creates a DataLoader for the validation dataset.
+
+        Returns
+        -------
+        DataLoader
+            A DataLoader instance configured for the validation dataset.
+        """
+        return DataLoader(self.val_dataset, batch_size=self.batch_size)
+
+    def test_dataloader(self):
+        """
+        Creates a DataLoader for the test dataset.
+
+        Returns
+        -------
+        DataLoader
+            A DataLoader instance configured for the test dataset.
+        """
+        return DataLoader(self.test_dataset, batch_size=self.batch_size)
