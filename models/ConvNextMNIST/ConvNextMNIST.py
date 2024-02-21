@@ -34,8 +34,7 @@ class NormalAbnormalConvNextV2(pl.LightningModule):
         # Initialize the ConvNextV2 model
         config = ConvNextV2Config(num_labels=2,
                                   num_channels=1,  # For grayscale images
-                                  image_size=800,
-                                  out_features=["logits"])
+                                  image_size=800)
         self.model = ConvNextV2ForImageClassification(config)
 
     def forward(self, pixel_values):
