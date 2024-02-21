@@ -1,7 +1,6 @@
 
 # torch
 import torch
-from torch.utils.data import DataLoader
 
 # huggingface model
 from transformers import ConvNextV2ForImageClassification, ConvNextV2Config
@@ -84,9 +83,9 @@ logger = CSVLogger("loss_log", name="my_model", flush_logs_every_n_steps=10)
 
 # --------------------- Trainer ---------------------
 trainer = pl.Trainer(max_time=timedelta(hours=6),
+                     accelerator="gpu",
                      callbacks=[early_stopping, model_checkpoint],
                      logger=logger,
-                     gpus=1 if torch.cuda.is_available() else 0,  # Adjust based on your setup
                      log_every_n_steps=10)
 
 
