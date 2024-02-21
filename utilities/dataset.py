@@ -60,9 +60,17 @@ class H5FoldDataset(Dataset):
             image = h5_file[f'fold_{fold}/image'][index]
             target = h5_file[f'fold_{fold}/{self.target_var}'][index]  # Use the specified target
 
+            # diagnostic print
+            print("Original shape:", image.shape)  # Diagnostic print
+
             # Swap channels to PyTorch format
             if self.tf_to_torch_channelswap:
-                image = np.transpose(image, (0, 3, 1, 2))
+                if image.ndim == 3:  # Single image
+                    image = np.transpose(image, (2, 0, 1))
+                elif image.ndim == 4:  # Batch of images
+                    image = np.transpose(image, (0, 3, 1, 2))
+                else:
+                    raise ValueError(f"Unexpected image dimensions: {image.shape}")
 
             # Stack channels if specified
             if self.stack_channels:
