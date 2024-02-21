@@ -1,5 +1,20 @@
 
+import sys
+import os
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Go up two levels to get the root of the project
+project_root = os.path.join(script_dir, '..', '..')
+
+# Add the project root to the Python path
+sys.path.append(os.path.abspath(project_root))
+
+# Now you can import your module
 from utilities.dataset import H5DataModule
+
+# The rest of your script...
 
 # Update this path to your actual H5 dataset file
 data_file = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'
