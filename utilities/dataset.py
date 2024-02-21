@@ -66,20 +66,19 @@ class H5FoldDataset(Dataset):
             # Swap channels to PyTorch format
             if self.tf_to_torch_channelswap:
                 image = np.transpose(image, (2, 0, 1))
-
-            print("Transformed shape:", image.shape)  # Diagnostic print
+                image = np.transpose(image, (0, 3, 1, 2))
 
             # Stack channels if specified
             if self.stack_channels:
                 along_axis = 0 if self.tf_to_torch_channelswap else 2
                 image = np.repeat(image, 3, axis=along_axis)
-            image = to_tensor(image)
+            image = torch.from_numpy(image)
 
             # Apply transform if specified
             if self.transform:
                 image = self.transform(image)
 
-        return image, torch.from_numpy(target)
+        return image, torch.tensor(target, dtype=torch.float32)
 
 
 class H5DataModule(pl.LightningDataModule):
