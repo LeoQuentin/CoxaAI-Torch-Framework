@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --ntasks=16          # 16 cores (CPU)
+#SBATCH --ntasks-per-node=16          # 16 cores (CPU)
 #SBATCH --nodes=1            # Use 1 node
 #SBATCH --job-name=training  # Name of job
 #SBATCH --partition=gpu      # Use GPU partition
