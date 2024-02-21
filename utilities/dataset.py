@@ -79,7 +79,7 @@ class H5FoldDataset(Dataset):
             if self.transform:
                 image = self.transform(image)
 
-        return image, torch.tensor(target, dtype=torch.float32)
+        return image, torch.from_numpy(target)
 
 
 class H5DataModule(pl.LightningDataModule):
