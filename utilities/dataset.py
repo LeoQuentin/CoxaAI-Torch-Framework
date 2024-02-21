@@ -9,7 +9,13 @@ from torchvision.transforms.functional import to_tensor
 
 
 class H5FoldDataset(Dataset):
-    def __init__(self, file_path, folds, target_var='target', transform=None, stack_channels=False):
+    def __init__(self,
+                 file_path,
+                 folds,
+                 target_var='target',
+                 transform=None,
+                 tf_to_torch_channelswap=True,
+                 stack_channels=False):
         """
         Initialize the Dataset object for loading data from specified folds in an H5 file.
 
@@ -23,6 +29,10 @@ class H5FoldDataset(Dataset):
             The name of the target variable, by default 'target'.
         transform : callable, optional
             A function/transform to apply to the data, by default None.
+        tf_to_torch_channelswap : bool, optional
+            Whether to swap the channels of the images to:
+            PyTorch format: (C, H, W), from TensorFlow format: (H, W, C),
+            by default True.
         stack_channels : bool, optional
             Whether to stack the channels of the images to create a 3-channel image,
             by default False.
@@ -50,9 +60,13 @@ class H5FoldDataset(Dataset):
             target = h5_file[f'fold_{fold}/{self.target_var}'][index]  # Use the specified target
 
             # Swap channels to PyTorch format
-            image = np.transpose(image, (2, 0, 1))
+            if self.tf_to_torch_channelswap:
+                image = np.transpose(image, (2, 0, 1))
+
+            # Stack channels if specified
             if self.stack_channels:
-                image = np.repeat(image, 3, axis=0)
+                along_axis = 0 if self.tf_to_torch_channelswap else 2
+                image = np.repeat(image, 3, axis=along_axis)
             image = to_tensor(image)
 
             # Apply transform if specified
