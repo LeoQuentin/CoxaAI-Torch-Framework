@@ -41,6 +41,7 @@ class H5FoldDataset(Dataset):
         self.folds = folds
         self.target_var = target_var
         self.transform = transform
+        self.tf_to_torch_channelswap = tf_to_torch_channelswap
         self.stack_channels = stack_channels
 
         with h5py.File(self.file_path, 'r') as h5_file:
@@ -94,6 +95,10 @@ class H5DataModule(pl.LightningDataModule):
         Batch size for the dataloaders.
     transform : callable, optional
         Optional transform to be applied on a sample, by default None.
+    tf_to_torch_channelswap : bool, optional
+            Whether to swap the channels of the images to:
+            PyTorch format: (C, H, W), from TensorFlow format: (H, W, C),
+            by default True.
     stack_channels : bool, optional
         Whether to stack the single-channel data to create 3-channel images, by default False.
     target_var : str, optional
@@ -105,6 +110,7 @@ class H5DataModule(pl.LightningDataModule):
                  val_fold=[4], test_fold=[3],
                  batch_size=16,
                  transform=None,
+                 tf_to_torch_channelswap=True,
                  stack_channels=False,
                  target_var='target'):
 
@@ -115,6 +121,7 @@ class H5DataModule(pl.LightningDataModule):
         self.test_fold = test_fold
         self.batch_size = batch_size
         self.transform = transform
+        self.tf_to_torch_channelswap = tf_to_torch_channelswap
         self.stack_channels = stack_channels
         self.target_var = target_var
 
@@ -134,11 +141,13 @@ class H5DataModule(pl.LightningDataModule):
                                                self.train_folds,
                                                self.target_var,
                                                self.transform,
+                                               self.tf_to_torch_channelswap,
                                                self.stack_channels)
             self.val_dataset = H5FoldDataset(self.data_file,
                                              self.val_fold,
                                              self.target_var,
                                              self.transform,
+                                             self.tf_to_torch_channelswap,
                                              self.stack_channels)
 
         if stage == 'test' or stage is None:
@@ -146,6 +155,7 @@ class H5DataModule(pl.LightningDataModule):
                                               self.test_fold,
                                               self.target_var,
                                               self.transform,
+                                              self.tf_to_torch_channelswap,
                                               self.stack_channels)
 
     def train_dataloader(self):
