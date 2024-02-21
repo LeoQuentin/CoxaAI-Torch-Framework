@@ -106,21 +106,25 @@ class H5DataModule(pl.LightningDataModule):
     """
     def __init__(self,
                  data_file,
-                 train_folds=[0, 1, 2],
-                 val_fold=[4], test_fold=[3],
                  batch_size=16,
-                 transform=None,
+                 train_folds=None,
+                 val_fold=None,
+                 test_fold=None,
+                 train_transform=None,
+                 val_transform=None,
+                 test_transform=None,
                  tf_to_torch_channelswap=True,
                  stack_channels=False,
                  target_var='target'):
-
         super().__init__()
-        self.data_file = data_file  # File path
-        self.train_folds = train_folds
-        self.val_fold = val_fold
-        self.test_fold = test_fold
+        self.data_file = data_file
         self.batch_size = batch_size
-        self.transform = transform
+        self.train_folds = train_folds if train_folds is not None else [0, 1, 2]
+        self.val_fold = val_fold if val_fold is not None else [4]
+        self.test_fold = test_fold if test_fold is not None else [3]
+        self.train_transform = train_transform
+        self.val_transform = val_transform
+        self.test_transform = test_transform
         self.tf_to_torch_channelswap = tf_to_torch_channelswap
         self.stack_channels = stack_channels
         self.target_var = target_var
@@ -136,27 +140,25 @@ class H5DataModule(pl.LightningDataModule):
             Can be 'fit', 'validate', 'test', or None.
             If None, datasets for all stages are initialized.
         """
+        common_params = {
+            "file_path": self.data_file,
+            "target_var": self.target_var,
+            "tf_to_torch_channelswap": self.tf_to_torch_channelswap,
+            "stack_channels": self.stack_channels
+        }
+
         if stage == 'fit' or stage is None:
-            self.train_dataset = H5FoldDataset(self.data_file,
-                                               self.train_folds,
-                                               self.target_var,
-                                               self.transform,
-                                               self.tf_to_torch_channelswap,
-                                               self.stack_channels)
-            self.val_dataset = H5FoldDataset(self.data_file,
-                                             self.val_fold,
-                                             self.target_var,
-                                             self.transform,
-                                             self.tf_to_torch_channelswap,
-                                             self.stack_channels)
+            self.train_dataset = H5FoldDataset(**common_params,
+                                               folds=self.train_folds,
+                                               transform=self.train_transform)
+            self.val_dataset = H5FoldDataset(**common_params,
+                                             folds=self.val_fold,
+                                             transform=self.val_transform)
 
         if stage == 'test' or stage is None:
-            self.test_dataset = H5FoldDataset(self.data_file,
-                                              self.test_fold,
-                                              self.target_var,
-                                              self.transform,
-                                              self.tf_to_torch_channelswap,
-                                              self.stack_channels)
+            self.test_dataset = H5FoldDataset(**common_params,
+                                              folds=self.test_fold,
+                                              transform=self.test_transform)
 
     def train_dataloader(self):
         """
