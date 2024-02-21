@@ -65,12 +65,9 @@ class H5FoldDataset(Dataset):
 
             # Swap channels to PyTorch format
             if self.tf_to_torch_channelswap:
-                if image.ndim == 3:  # Single image
-                    image = np.transpose(image, (2, 0, 1))
-                elif image.ndim == 4:  # Batch of images
-                    image = np.transpose(image, (0, 3, 1, 2))
-                else:
-                    raise ValueError(f"Unexpected image dimensions: {image.shape}")
+                image = np.transpose(image, (2, 0, 1))
+
+            print("Transformed shape:", image.shape)  # Diagnostic print
 
             # Stack channels if specified
             if self.stack_channels:
