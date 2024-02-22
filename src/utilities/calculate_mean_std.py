@@ -1,6 +1,7 @@
 import torch
 from dataset import H5DataModule
 
+print("PyTorch Version: ", torch.__version__)
 
 def calculate_mean_std(data_file, dm_params=None):
     if dm_params is None:
