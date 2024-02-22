@@ -44,6 +44,5 @@ def calculate_mean_std(data_file, dm_params=None):
     return mean.numpy(), std.numpy()
 
 
-if __name__ == '__main__':
-    data_file = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'
-    calculate_mean_std(data_file)
+data_file = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'
+calculate_mean_std(data_file)
