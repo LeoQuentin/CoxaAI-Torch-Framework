@@ -4,8 +4,9 @@
 #SBATCH --job-name=build_singularity        # Name of job
 #SBATCH --mem=3G 			                # Default memory per CPU is 3GB
 #SBATCH --partition=gpu                     # Use GPU partition
-#SBATCH --gres=gpu:1                        # Use one GPU to get Nvidia drivers
+#SBATCH --gres=gpu:1                        # Use one GPU
 #SBATCH --output=./log_create_container.out # Stdout and stderr file
+
 
 ## Script commands
 # This is a script to generate new singularity container .sif file taking a .def file as an argument. 
@@ -28,12 +29,10 @@ then
 else
     DIR_NAME=$(dirname "$1")
     BASENAME=$(basename "$1")
-    SIF_FILENAME="container_${BASENAME:0:-4}.sif" # Fixed slicing syntax for BASENAME
-    CONTAINERS_DIR="../containers" # Path to the 'containers' directory
-    echo "Making container $SIF_FILENAME from file $BASENAME, and putting it in $CONTAINERS_DIR"
-    SIF_PATH="${CONTAINERS_DIR}/${SIF_FILENAME}"
-    LOG_PATH="${CONTAINERS_DIR}/log_create_container_${BASENAME:0:-4}.out" # Path for the log file
+    SIF_FILENAME="container_${BASENAME:0:end-4}.sif"
+    echo "Making container $SIF_FILENAME from file $BASENAME, and putting it in $DIR_NAME"
+    SIF_PATH="${DIR_NAME}/${SIF_FILENAME}"
     module load singularity
     singularity build --fakeroot $SIF_PATH $1
-    mv "./log_create_container.out" "$LOG_PATH" # Updated path for moving log file
-fi
+    mv "./log_create_container.out" "${DIR_NAME}/log_create_container_${BASENAME:0:end-4}.out"
+fi 
