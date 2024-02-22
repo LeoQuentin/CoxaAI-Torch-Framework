@@ -1,6 +1,7 @@
 
 # torch
 import torch
+import torchvision
 
 # huggingface model
 from transformers import ConvNextV2ForImageClassification, ConvNextV2Config
