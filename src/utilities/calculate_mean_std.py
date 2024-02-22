@@ -45,5 +45,5 @@ def calculate_mean_std(data_file, dm_params=None):
 
 
 if __name__ == '__main__':
-    data_file = '/path/to/your/dataset.h5'
+    data_file = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'
     calculate_mean_std(data_file)
