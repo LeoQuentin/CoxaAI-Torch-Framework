@@ -13,7 +13,7 @@ filename="h5_info_printout.py"
 ## Script commands
 module load singularity
 
-SIFFILE="/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/containers/container_pytorch_cv_with_metrics.sif" ## FILL INN
+SIFFILE="/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/container_pytorch_cv.sif" ## FILL INN
 
 ## RUN THE PYTHON SCRIPT
 singularity exec --nv $SIFFILE python $filename
