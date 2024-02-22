@@ -14,7 +14,7 @@ SIFFILE="/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/contain
 
 ## RUN THE PYTHON SCRIPT
 # Using a singularity container named container_u_net.sif
-singularity exec --nv $SIFFILE python test_script.py        ## FILL INN
+singularity exec --nv $SIFFILE python calculate_mean_std.py        ## FILL INN
 
 # Send this job into the slurm queue with the following command: 
 # >> sbatch test_script_slurm.sh 
