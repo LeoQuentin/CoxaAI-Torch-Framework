@@ -4,9 +4,8 @@
 #SBATCH --job-name=build_singularity        # Name of job
 #SBATCH --mem=3G 			                # Default memory per CPU is 3GB
 #SBATCH --partition=gpu                     # Use GPU partition
-#SBATCH --gres=gpu:1                        # Use one GPU
+#SBATCH --gres=gpu:1                        # Use one GPU to get Nvidia drivers
 #SBATCH --output=./log_create_container.out # Stdout and stderr file
-
 
 ## Script commands
 # This is a script to generate new singularity container .sif file taking a .def file as an argument. 
@@ -18,10 +17,7 @@
 # >> sbatch slurm_create_singularity_container.sh basepath/SINGULARITY_DEFINITION_FILE.def
 # returns: 
 #   * basepath/SINGULARITY_DEFINITION_FILE.sif     => singularity container
-#   * basepath/log_SINGULARITY_DEFINITION_FILE.out => log file containing print statements from generation process (should be checked)
-
-CONTAINERS_DIR = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/containers"
-LOGS_DIR = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/logs/container_logs"
+#   * basepath/log_SINGULARITY_DEFINITION_FILE.out => log file containing print statements from generation process (should be checked).
 
 if [ $# = 0 ]
 then
@@ -30,19 +26,14 @@ elif [ $# -gt 1 ]
 then
     echo "Too many arguments given. Do one file at the time"
 else
+    DIR_NAME=$(dirname "$1")
     BASENAME=$(basename "$1")
-    SIF_FILENAME="container_${BASENAME%.*}.sif"
-    SIF_PATH="${CONTAINERS_DIR}/${SIF_FILENAME}"
-    LOG_FILENAME="log_create_container_${BASENAME%.*}.out"
-    LOG_PATH="${LOGS_DIR}/${LOG_FILENAME}"
-
+    SIF_FILENAME="container_${BASENAME:0:-4}.sif" # Fixed slicing syntax for BASENAME
+    CONTAINERS_DIR="../containers" # Path to the 'containers' directory
     echo "Making container $SIF_FILENAME from file $BASENAME, and putting it in $CONTAINERS_DIR"
-
+    SIF_PATH="${CONTAINERS_DIR}/${SIF_FILENAME}"
+    LOG_PATH="${CONTAINERS_DIR}/log_create_container_${BASENAME:0:-4}.out" # Path for the log file
     module load singularity
     singularity build --fakeroot $SIF_PATH $1
-
-    # Move the log file to the correct directory
-    # Since the script is executed inside definitions_scripts_logs, no need to move the log file.
-    # Updated to reflect the correct log file handling
-    echo "Log file located at: $LOG_PATH"
+    mv "./log_create_container.out" "$LOG_PATH" # Updated path for moving log file
 fi
