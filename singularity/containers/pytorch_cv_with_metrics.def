@@ -1,11 +1,11 @@
 Bootstrap: docker
-From: pytorch/pytorch:latest 
+From: pytorch/pytorch:latest
 
 %help
-    Container provides environment for PyTorch/Huggingface transformer models.. 
+    Container provides environment for pre-processing data in the FMB project. 
 
 %labels
-    AUTHOR_NAME Leo Q Baekholt
+    AUTHOR_NAME L.Q.Th.B.
     AUTHOR_EMAIL leo.quentin.thorbjornsen.bakholt@nmbu.no
     VERSION 1.0
 
@@ -19,11 +19,8 @@ From: pytorch/pytorch:latest
     ## Machine learning
     pip install torch
     pip install torchvision
-    pip install torchmetrics
-    pip install pytorch-lightning
     pip install torcheval
-    pip install transformers
-    pip install SimpleITK
+    pip install scikit-learn
 
     ## Data representation and calculation
     pip install numpy
@@ -40,6 +37,10 @@ From: pytorch/pytorch:latest
     pip install scikit-image
     pip install opencv-python
     pip install Pillow
+    pip install SimpleITK
+
+    # Lightning
+    pip install pytorch-lightning
 
     ## File storage
     pip install h5py
