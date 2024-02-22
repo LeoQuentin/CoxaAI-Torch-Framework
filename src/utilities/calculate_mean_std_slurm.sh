@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the Python script filename
-filename="calculate_mean_std_slurm.py"
+filename="calculate_mean_std.py"
 
 #SBATCH --ntasks=16          # 16 cores (CPU)
 #SBATCH --nodes=1            # Use 1 node
