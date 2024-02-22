@@ -74,10 +74,10 @@ dm = H5DataModule(data_file,
 # --------------------- Callbacks ---------------------
 early_stopping = EarlyStopping(monitor='val_loss', patience=5)
 model_checkpoint = ModelCheckpoint(dirpath='./models/',
-                                   filename='best-model',
+                                   filename='ConvNextV2NormalAbnormal_best_checkpoint',
                                    monitor='val_loss',
                                    mode='min')
-logger = CSVLogger("loss_log", name="my_model", flush_logs_every_n_steps=10)
+logger = CSVLogger("loss_log", name="ConvNextV2NormalAbnormal", flush_logs_every_n_steps=10)
 
 
 # --------------------- Trainer ---------------------

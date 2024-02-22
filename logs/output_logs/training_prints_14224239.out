@@ -1,0 +1,56 @@
+Exploring HDF5 file: /mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5
+Group: /fold_0
+Dataset: /fold_0/diagnosis
+  Shape: (829,), Dtype: float32
+  Unique values in diagnosis: [0. 1. 2. 3. 4.]
+Dataset: /fold_0/image
+  Shape: (829, 800, 800, 1), Dtype: float32
+Dataset: /fold_0/patient_idx
+  Shape: (829,), Dtype: int32
+Dataset: /fold_0/target
+  Shape: (829,), Dtype: float32
+  Unique values in target: [0. 1.]
+Group: /fold_1
+Dataset: /fold_1/diagnosis
+  Shape: (836,), Dtype: float32
+  Unique values in diagnosis: [0. 1. 2. 3. 4.]
+Dataset: /fold_1/image
+  Shape: (836, 800, 800, 1), Dtype: float32
+Dataset: /fold_1/patient_idx
+  Shape: (836,), Dtype: int32
+Dataset: /fold_1/target
+  Shape: (836,), Dtype: float32
+  Unique values in target: [0. 1.]
+Group: /fold_2
+Dataset: /fold_2/diagnosis
+  Shape: (826,), Dtype: float32
+  Unique values in diagnosis: [0. 1. 2. 3. 4.]
+Dataset: /fold_2/image
+  Shape: (826, 800, 800, 1), Dtype: float32
+Dataset: /fold_2/patient_idx
+  Shape: (826,), Dtype: int32
+Dataset: /fold_2/target
+  Shape: (826,), Dtype: float32
+  Unique values in target: [0. 1.]
+Group: /fold_3
+Dataset: /fold_3/diagnosis
+  Shape: (842,), Dtype: float32
+  Unique values in diagnosis: [0. 1. 2. 3. 4.]
+Dataset: /fold_3/image
+  Shape: (842, 800, 800, 1), Dtype: float32
+Dataset: /fold_3/patient_idx
+  Shape: (842,), Dtype: int32
+Dataset: /fold_3/target
+  Shape: (842,), Dtype: float32
+  Unique values in target: [0. 1.]
+Group: /fold_4
+Dataset: /fold_4/diagnosis
+  Shape: (822,), Dtype: float32
+  Unique values in diagnosis: [0. 1. 2. 3. 4.]
+Dataset: /fold_4/image
+  Shape: (822, 800, 800, 1), Dtype: float32
+Dataset: /fold_4/patient_idx
+  Shape: (822,), Dtype: int32
+Dataset: /fold_4/target
+  Shape: (822,), Dtype: float32
+  Unique values in target: [0. 1.]

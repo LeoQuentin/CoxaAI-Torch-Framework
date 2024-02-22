@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/models/ConvNextMNIST/ConvNextMNIST.py", line 85, in <module>
+    trainer = pl.Trainer(max_time=timedelta(hours=6),
+  File "/opt/conda/lib/python3.10/site-packages/pytorch_lightning/utilities/argparse.py", line 70, in insert_env_defaults
+    return fn(self, **kwargs)
+  File "/opt/conda/lib/python3.10/site-packages/pytorch_lightning/trainer/trainer.py", line 400, in __init__
+    self._accelerator_connector = _AcceleratorConnector(
+  File "/opt/conda/lib/python3.10/site-packages/pytorch_lightning/trainer/connectors/accelerator_connector.py", line 153, in __init__
+    self.cluster_environment: ClusterEnvironment = self._choose_and_init_cluster_environment()
+  File "/opt/conda/lib/python3.10/site-packages/pytorch_lightning/trainer/connectors/accelerator_connector.py", line 423, in _choose_and_init_cluster_environment
+    return env_type()
+  File "/opt/conda/lib/python3.10/site-packages/lightning_fabric/plugins/environments/slurm.py", line 54, in __init__
+    self._validate_srun_variables()
+  File "/opt/conda/lib/python3.10/site-packages/lightning_fabric/plugins/environments/slurm.py", line 221, in _validate_srun_variables
+    raise RuntimeError(
+RuntimeError: You set `--ntasks=16` in your SLURM bash script, but this variable is not supported. HINT: Use `--ntasks-per-node=16` instead.

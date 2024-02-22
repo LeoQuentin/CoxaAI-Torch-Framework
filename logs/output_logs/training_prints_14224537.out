@@ -1,0 +1,16 @@
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+Traceback (most recent call last):
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/models/ConvNextMNIST/ConvNextMNIST.py", line 94, in <module>
+    model = NormalAbnormalConvNextV2()
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/models/ConvNextMNIST/ConvNextMNIST.py", line 35, in __init__
+    config = ConvNextV2Config(num_labels=2,
+  File "/opt/conda/lib/python3.10/site-packages/transformers/models/convnextv2/configuration_convnextv2.py", line 116, in __init__
+    self._out_features, self._out_indices = get_aligned_output_features_output_indices(
+  File "/opt/conda/lib/python3.10/site-packages/transformers/utils/backbone_utils.py", line 126, in get_aligned_output_features_output_indices
+    verify_out_features_out_indices(out_features=out_features, out_indices=out_indices, stage_names=stage_names)
+  File "/opt/conda/lib/python3.10/site-packages/transformers/utils/backbone_utils.py", line 41, in verify_out_features_out_indices
+    raise ValueError(f"out_features must be a subset of stage_names: {stage_names} got {out_features}")
+ValueError: out_features must be a subset of stage_names: ['stem', 'stage1', 'stage2', 'stage3', 'stage4'] got ['logits']

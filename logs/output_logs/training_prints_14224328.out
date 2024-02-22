@@ -1,0 +1,15 @@
+Training Data:
+Original shape: (800, 800, 1)
+Original shape: (800, 800, 1)
+Batch 0: x shape torch.Size([2, 1, 800, 800]), y shape torch.Size([2])
+Original shape: (800, 800, 1)
+Original shape: (800, 800, 1)
+Batch 1: x shape torch.Size([2, 1, 800, 800]), y shape torch.Size([2])
+
+Validation Data:
+Original shape: (800, 800, 1)
+Original shape: (800, 800, 1)
+Batch 0: x shape torch.Size([2, 1, 800, 800]), y shape torch.Size([2])
+Original shape: (800, 800, 1)
+Original shape: (800, 800, 1)
+Batch 1: x shape torch.Size([2, 1, 800, 800]), y shape torch.Size([2])

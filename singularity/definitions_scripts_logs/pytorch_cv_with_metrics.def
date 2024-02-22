@@ -1,0 +1,52 @@
+Bootstrap: docker
+From: pytorch/pytorch:latest 
+
+%help
+    Container provides environment for PyTorch/Huggingface transformer models.. 
+
+%labels
+    AUTHOR_NAME Leo Q Baekholt
+    AUTHOR_EMAIL leo.quentin.thorbjornsen.bakholt@nmbu.no
+    VERSION 1.0
+
+%post -c /bin/bash
+    apt update
+    apt --yes --force-yes install libgl1 # Required by OpenCV, not present in container
+    # W: --force-yes is deprecated, use one of the options starting with --allow instead.
+
+    ##### python package installs START #####
+    pip install --upgrade pip
+    ## Machine learning
+    pip install torch
+    pip install torchvision
+    pip install torchmetrics
+    pip install pytorch-lightning
+    pip install torcheval
+    pip install transformers
+    pip install SimpleITK
+
+    ## Data representation and calculation
+    pip install numpy
+    pip install pandas
+
+    ## Process monitoring
+    pip install tqdm
+
+    ## Plotting
+    pip install matplotlib
+    pip install seaborn
+
+    ## Image processing
+    pip install scikit-image
+    pip install opencv-python
+    pip install Pillow
+
+    ## File storage
+    pip install h5py
+    ##### python package installs END #####
+
+    echo "FINISHED"
+
+%runscript
+
+%test

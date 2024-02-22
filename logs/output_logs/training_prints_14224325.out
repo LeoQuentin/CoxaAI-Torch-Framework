@@ -1,0 +1,22 @@
+Training Data:
+Original shape: (800, 800, 1)
+Traceback (most recent call last):
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/models/ConvNextMNIST/ConvNextMNIST.py", line 44, in <module>
+    run_test()
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/models/ConvNextMNIST/ConvNextMNIST.py", line 30, in run_test
+    for batch_idx, (x, y) in enumerate(dm.train_dataloader()):
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 631, in __next__
+    data = self._next_data()
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 675, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/opt/conda/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/utilities/dataset.py", line 69, in __getitem__
+    image = np.transpose(image, (0, 3, 1, 2))
+  File "/opt/conda/lib/python3.10/site-packages/numpy/core/fromnumeric.py", line 655, in transpose
+    return _wrapfunc(a, 'transpose', axes)
+  File "/opt/conda/lib/python3.10/site-packages/numpy/core/fromnumeric.py", line 59, in _wrapfunc
+    return bound(*args, **kwds)
+ValueError: axes don't match array

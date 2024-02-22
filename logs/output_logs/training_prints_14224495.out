@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/mnt/users/leobakh/VET_project/VET-Special-syllabus/models/ConvNextMNIST/ConvNextMNIST.py", line 86, in <module>
+    trainer = pl.Trainer(max_time=timedelta(hours=6),
+  File "/opt/conda/lib/python3.10/site-packages/pytorch_lightning/utilities/argparse.py", line 70, in insert_env_defaults
+    return fn(self, **kwargs)
+TypeError: Trainer.__init__() got an unexpected keyword argument 'gpus'
