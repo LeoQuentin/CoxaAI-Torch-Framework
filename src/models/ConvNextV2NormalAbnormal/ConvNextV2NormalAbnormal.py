@@ -1,7 +1,6 @@
 
 # torch
 import torch
-import torchvision
 
 # huggingface model
 from transformers import ConvNextV2ForImageClassification, ConvNextV2Config
@@ -18,7 +17,7 @@ import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.join(script_dir, '..', '..')
 sys.path.append(os.path.abspath(project_root))
-from utilities.dataset import H5DataModule
+from utilities.dataset import H5DataModule  # noqa: E402
 
 
 # Data file path
