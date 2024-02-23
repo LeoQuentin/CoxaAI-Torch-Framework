@@ -3,7 +3,7 @@
 import torch
 
 # huggingface model
-from transformers import ConvNextV2ForImageClassification, ConvNextV2Config
+from transformers import EfficientNetForImageClassification, EfficientNetConfig
 
 # Lightning
 import pytorch_lightning as pl
@@ -31,19 +31,19 @@ log_file = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/logs/loss_logs"
 # Model save path
 model_save_path = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/trained_models"
 
+
 # --------------------- Model ---------------------
 
-
-class ConvNextV2NormalAbnormal(pl.LightningModule):
+class EfficientNetNormalAbnormal(pl.LightningModule):
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.save_hyperparameters()
 
         # Initialize the ConvNextV2 model
-        config = ConvNextV2Config(num_labels=2,
-                                  num_channels=1,  # For grayscale images
-                                  image_size=800)
-        self.model = ConvNextV2ForImageClassification(config)
+        config = EfficientNetConfig(num_labels=2,
+                                    num_channels=1,  # For grayscale images
+                                    image_size=800)
+        self.model = EfficientNetForImageClassification(config)
 
         # Metrics
         self.accuracy = torchmetrics.Accuracy(threshold=0.5)
@@ -94,14 +94,19 @@ dm = H5DataModule(data_file,
 # --------------------- Callbacks ---------------------
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-model_checkpoint = ModelCheckpoint(dirpath=log_file,
-                                   filename='ConvNextV2NormalAbnormal_best_checkpoint',
+model_checkpoint = ModelCheckpoint(dirpath=model_save_path,
+                                   filename='EfficientNetNormalAbnormal_best_checkpoint',
                                    monitor='val_loss',
                                    mode='min')
-logger = CSVLogger("loss_log", name="ConvNextV2NormalAbnormal", flush_logs_every_n_steps=10)
+
+logger = CSVLogger(save_path=log_file,
+                   name="loss_log",
+                   name="EfficientNetNormalAbnormal",
+                   flush_logs_every_n_steps=10)
 
 
 # --------------------- Trainer ---------------------
+
 trainer = pl.Trainer(max_time=timedelta(hours=6),
                      accelerator="gpu",
                      callbacks=[early_stopping, model_checkpoint],
@@ -111,6 +116,6 @@ trainer = pl.Trainer(max_time=timedelta(hours=6),
 
 # --------------------- Training ---------------------
 
-model = ConvNextV2NormalAbnormal()
+model = EfficientNetNormalAbnormal()
 
 trainer.fit(model, dm)
