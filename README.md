@@ -8,7 +8,7 @@ If you have all of the above, training a model is as simple as running `sbatch {
 
 ## Notes about Project Structure:
 - 	logs: Contains all logs related to the project.
-		- container_logs: Stores logs from the creation of the Singularity containers.
+		- container_logs: Stores logs from the creation of the Singularity containers. 
 		- loss_logs: Contains logs related to model training losses and performance metrics, organized by model and experiment version.
 		- output_logs: Contains output files from training sessions.
 - 	Singularity
