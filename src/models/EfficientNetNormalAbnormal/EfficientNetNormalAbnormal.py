@@ -101,7 +101,6 @@ model_checkpoint = ModelCheckpoint(dirpath=model_save_path,
 
 logger = CSVLogger(save_path=log_file,
                    name="loss_log",
-                   name="EfficientNetNormalAbnormal",
                    flush_logs_every_n_steps=10)
 
 
