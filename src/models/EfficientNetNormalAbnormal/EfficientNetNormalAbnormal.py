@@ -46,7 +46,7 @@ class EfficientNetNormalAbnormal(pl.LightningModule):
         self.model = EfficientNetForImageClassification(config)
 
         # Metrics
-        self.accuracy = torchmetrics.Accuracy(threshold=0.5)
+        self.accuracy = torchmetrics.Accuracy(threshold=0.5, task="binary")
         self.mcc = torchmetrics.MatthewsCorrcoef(task="binary")
 
     def forward(self, pixel_values):
