@@ -45,6 +45,10 @@ From: tensorflow/tensorflow:latest-gpu
 
     ## File storage
     pip install h5py
+
+    ## Others
+    pip install python-dotenv
+    
     ##### python package installs END #####
 
     echo "FINISHED"

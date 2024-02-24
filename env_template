@@ -1,0 +1,11 @@
+# Path to the dataset
+DATA_FILE=path_to_data_file
+
+# Directory for log files
+LOG_FILE_DIR=path_to_log_file
+
+# Directory to save trained models
+MODEL_SAVE_DIR=path_to_save_models
+
+# Project root for importing modules
+PROJECT_ROOT=path_to_project_root

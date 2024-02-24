@@ -1,5 +1,9 @@
 import h5py
 import numpy as np
+import os
+import dotenv
+import argparse
+dotenv.load_dotenv()
 
 
 def explore_hdf5_group(group, prefix=''):
@@ -72,6 +76,15 @@ def main(hdf5_path):
         print(f"Error: {e}")
 
 
-if __name__ == '__main__':
-    hdf5_path = '/mnt/project/ngoc/CoxaAI/datasets/hips_800_sort_4.h5'
-    main(hdf5_path)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Print out structure of H5 dataset.") # noqa
+    parser.add_argument("--data_file",
+                        type=str,
+                        default=os.getenv("DATA_FILE"),
+                        help="Path to the data file. Defaults to DATA_FILE environment variable.")
+    args = parser.parse_args()
+
+    if not args.data_file:
+        raise ValueError("No data file provided and DATA_FILE environment variable is not set.")
+
+    main(args.data_file)
