@@ -46,7 +46,7 @@ class ConvNextV2NormalAbnormal(pl.LightningModule):
         self.model = ConvNextV2ForImageClassification(config)
 
         # Metrics
-        self.accuracy = torchmetrics.Accuracy(threshold=0.5)
+        self.accuracy = torchmetrics.Accuracy(threshold=0.5, task="binary")
         self.mcc = torchmetrics.MatthewsCorrcoef(task="binary")
 
     def forward(self, pixel_values):
