@@ -99,7 +99,7 @@ model_checkpoint = ModelCheckpoint(dirpath=model_save_path,
                                    monitor='val_loss',
                                    mode='min')
 
-logger = CSVLogger(save_path=log_file,
+logger = CSVLogger(save_dir=log_file,
                    name="loss_log",
                    flush_logs_every_n_steps=10)
 
