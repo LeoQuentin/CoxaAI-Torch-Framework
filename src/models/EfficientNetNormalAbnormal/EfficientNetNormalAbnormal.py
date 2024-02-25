@@ -37,7 +37,7 @@ class ConvNextV2NormalAbnormal(BaseNormalAbnormal):
 
 
 dm = H5DataModule(os.getenv("DATA_FILE"),
-                  batch_size=16,
+                  batch_size=12,
                   train_folds=[0, 1, 2],
                   val_folds=[3],
                   test_folds=[4],
