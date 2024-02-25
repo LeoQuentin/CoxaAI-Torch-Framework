@@ -22,7 +22,7 @@ from src.utilities.H5DataModule import H5DataModule # noqa
 
 # --------------------- Model ---------------------
 
-class EfficientNet_b7_transfer_NormalAbnormal(BaseNormalAbnormal):
+class EfficientNetB7TransferNormalAbnormal(BaseNormalAbnormal):
     def __init__(self, *args, **kwargs):
         # Initialize the ConvNextV2 model with specific configuration
         model = EfficientNetForImageClassification.from_pretrained("google/efficientnet-b7")
@@ -56,7 +56,7 @@ dm = H5DataModule(os.getenv("DATA_FILE"),
 
 # ------------------ Instanciate model ------------------
 
-model = EfficientNet_b7_transfer_NormalAbnormal()
+model = EfficientNetB7TransferNormalAbnormal()
 model_class_name = model.__class__.__name__
 
 
