@@ -23,7 +23,7 @@ from src.utilities.H5DataModule import H5DataModule # noqa
 # --------------------- Model ---------------------
 
 
-class ConvNextV2NormalAbnormal(BaseNormalAbnormal):
+class EfficientNetNormalAbnormal(BaseNormalAbnormal):
     def __init__(self, *args, **kwargs):
         # Initialize the ConvNextV2 model with specific configuration
         convnext_v2_config = EfficientNetConfig(num_labels=2,
@@ -48,7 +48,7 @@ dm = H5DataModule(os.getenv("DATA_FILE"),
 
 # ------------------ Instanciate model ------------------
 
-model = ConvNextV2NormalAbnormal()
+model = EfficientNetNormalAbnormal()
 model_class_name = model.__class__.__name__
 
 # --------------------- Callbacks ---------------------
