@@ -10,7 +10,7 @@ import torchmetrics
 
 class BaseNormalAbnormal(pl.LightningModule):
     def __init__(self, model, *args, **kwargs):
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.save_hyperparameters(ignore=['model'])
 
         # Initialize the ConvNextV2 model
