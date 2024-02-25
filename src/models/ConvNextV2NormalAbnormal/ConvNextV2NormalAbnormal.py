@@ -49,7 +49,7 @@ dm = H5DataModule(os.getenv("DATA_FILE"),
 # --------------------- Callbacks ---------------------
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-model_checkpoint = ModelCheckpoint(dirpath=os.getenv("DATA_FILE"),
+model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
                                    filename='ConvNextV2NormalAbnormal_best_checkpoint',
                                    monitor='val_loss',
                                    mode='min')

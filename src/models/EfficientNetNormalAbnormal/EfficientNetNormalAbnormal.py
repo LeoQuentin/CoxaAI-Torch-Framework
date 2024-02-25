@@ -54,7 +54,7 @@ model_class_name = model.__class__.__name__
 # --------------------- Callbacks ---------------------
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-model_checkpoint = ModelCheckpoint(dirpath=os.getenv("DATA_FILE"),
+model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
                                    filename=f'{model_class_name}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}', # noqa
                                    monitor='val_loss',
                                    mode='min')
