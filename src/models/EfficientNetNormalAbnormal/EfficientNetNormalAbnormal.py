@@ -33,6 +33,7 @@ class EfficientNetNormalAbnormal(BaseNormalAbnormal):
 
         super().__init__(model=convnext_v2_model, *args, **kwargs)
 
+
 # --------------------- DataModule ---------------------
 
 

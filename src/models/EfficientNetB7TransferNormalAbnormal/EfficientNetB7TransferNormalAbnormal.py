@@ -20,6 +20,29 @@ from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
 
 
+preprocessor = EfficientNetImageProcessor.from_pretrained("google/efficientnet-b7")
+
+
+def preprocess_image(image: torch.Tensor):
+    data = preprocessor(images=image, return_tensors="pt")
+    print(data["pixel_values"].shape)
+    return data.input
+
+
+dm = H5DataModule(os.getenv("DATA_FILE"),
+                  batch_size=12,
+                  train_folds=[0, 1, 2],
+                  val_folds=[3],
+                  test_folds=[4],
+                  target_var='target',
+                  tf_to_torch_channelswap=True,
+                  stack_channels=True,
+                  train_transform=preprocess_image,
+                  val_transform=preprocess_image,
+                  test_transform=preprocess_image
+                  )
+
+
 # --------------------- Model ---------------------
 
 class EfficientNetB7TransferNormalAbnormal(BaseNormalAbnormal):
@@ -35,7 +58,8 @@ preprocessor = EfficientNetImageProcessor.from_pretrained("google/efficientnet-b
 
 
 def preprocess_image(image: torch.Tensor):
-    return preprocessor(image, return_tensors="pt")
+    data = preprocessor(images=image, return_tensors="pt")
+    return data["pixel_values"]
 
 
 # --------------------- DataModule ---------------------

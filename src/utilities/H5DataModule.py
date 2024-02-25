@@ -168,7 +168,10 @@ class H5DataModule(pl.LightningDataModule):
         DataLoader
             A DataLoader instance configured for the training dataset, with shuffling enabled.
         """
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.train_dataset,
+                          batch_size=self.batch_size,
+                          shuffle=True,
+                          num_workers=4)
 
     def val_dataloader(self):
         """
@@ -179,7 +182,9 @@ class H5DataModule(pl.LightningDataModule):
         DataLoader
             A DataLoader instance configured for the validation dataset.
         """
-        return DataLoader(self.val_dataset, batch_size=self.batch_size)
+        return DataLoader(self.val_dataset,
+                          batch_size=self.batch_size,
+                          num_workers=4)
 
     def test_dataloader(self):
         """
@@ -190,4 +195,6 @@ class H5DataModule(pl.LightningDataModule):
         DataLoader
             A DataLoader instance configured for the test dataset.
         """
-        return DataLoader(self.test_dataset, batch_size=self.batch_size)
+        return DataLoader(self.test_dataset,
+                          batch_size=self.batch_size,
+                          num_workers=4)
