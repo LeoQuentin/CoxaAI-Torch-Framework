@@ -27,6 +27,8 @@ class EfficientNetB7TransferNormalAbnormal(BaseNormalAbnormal):
         model = EfficientNetForImageClassification.from_pretrained("google/efficientnet-b7")
         super().__init__(model=model, *args, **kwargs)
 
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=6e-5)
 
 # --------------------- Preprocessing ---------------------
 
