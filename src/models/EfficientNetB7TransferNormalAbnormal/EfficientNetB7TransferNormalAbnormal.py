@@ -35,6 +35,7 @@ preprocessor = EfficientNetImageProcessor.from_pretrained("google/efficientnet-b
 
 def preprocess_image(image: torch.Tensor):
     data = preprocessor(images=image, return_tensors="pt")
+    pixel_values = data["pixel_values"]
     if pixel_values.shape[0] == 1:  # Check if the batch dimension is 1
         pixel_values = pixel_values.squeeze(0)  # Remove the first dimension
     return data["pixel_values"]
