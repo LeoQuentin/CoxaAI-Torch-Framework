@@ -29,6 +29,7 @@ def preprocess_image(image: torch.Tensor):
     return data.input
 
 
+
 dm = H5DataModule(os.getenv("DATA_FILE"),
                   batch_size=12,
                   train_folds=[0, 1, 2],
@@ -65,7 +66,7 @@ def preprocess_image(image: torch.Tensor):
 # --------------------- DataModule ---------------------
 
 dm = H5DataModule(os.getenv("DATA_FILE"),
-                  batch_size=12,
+                  batch_size=2,
                   train_folds=[0, 1, 2],
                   val_folds=[3],
                   test_folds=[4],
