@@ -44,7 +44,7 @@ def preprocess_image(image: torch.Tensor):
 # --------------------- DataModule ---------------------
 
 dm = H5DataModule(os.getenv("DATA_FILE"),
-                  batch_size=24,
+                  batch_size=16,
                   train_folds=[0, 1, 2],
                   val_folds=[3],
                   test_folds=[4],
