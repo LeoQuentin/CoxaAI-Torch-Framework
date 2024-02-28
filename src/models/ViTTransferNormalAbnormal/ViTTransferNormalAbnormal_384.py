@@ -29,7 +29,8 @@ model_id = "google/vit-base-patch16-384"
 class ViTTransferNormalAbnormal(BaseNormalAbnormal):
     def __init__(self, *args, **kwargs):
         # Initialize the ConvNextV2 model with specific configuration
-        model = ViTForImageClassification.from_pretrained(model_id, num_labels=2)
+        model = ViTForImageClassification.from_pretrained(model_id)
+        model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
         super().__init__(model=model, *args, **kwargs)
 
     def configure_optimizers(self):
