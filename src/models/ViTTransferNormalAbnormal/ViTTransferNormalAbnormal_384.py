@@ -29,7 +29,7 @@ model_id = "google/vit-base-patch16-384"
 class ViTTransferNormalAbnormal(BaseNormalAbnormal):
     def __init__(self, *args, **kwargs):
         # Initialize the ConvNextV2 model with specific configuration
-        model = ViTForImageClassification.from_pretrained(model_id)
+        model = ViTForImageClassification.from_pretrained(model_id, num_labels=2)
         super().__init__(model=model, *args, **kwargs)
 
     def configure_optimizers(self):
@@ -53,7 +53,7 @@ def preprocess_image(image: torch.Tensor):
 # --------------------- DataModule ---------------------
 
 dm = H5DataModule(os.getenv("DATA_FILE"),
-                  batch_size=32,
+                  batch_size=16,
                   train_folds=[0, 1, 2],
                   val_folds=[3],
                   test_folds=[4],
@@ -74,8 +74,7 @@ model_class_name = model.__class__.__name__
 
 # --------------------- Callbacks ---------------------
 
-early_stopping = EarlyStopping(monitor='val_loss',
-                               patience=20)
+early_stopping = EarlyStopping(monitor='val_loss', patience=20)
 model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
                                    filename=f'{model_class_name}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}', # noqa
                                    monitor='val_loss',
