@@ -1,4 +1,5 @@
 import torch # noqa
+import torch.nn as nn
 
 # huggingface model
 from transformers import EfficientNetForImageClassification, EfficientNetImageProcessor
@@ -25,6 +26,7 @@ class EfficientNetB7TransferNormalAbnormal(BaseNormalAbnormal):
     def __init__(self, *args, **kwargs):
         # Initialize the ConvNextV2 model with specific configuration
         model = EfficientNetForImageClassification.from_pretrained("google/efficientnet-b7")
+        model.classifier = nn.Linear(model.classifier.in_features, 2)
         super().__init__(model=model, *args, **kwargs)
 
     def configure_optimizers(self):
