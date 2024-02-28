@@ -33,7 +33,7 @@ class ViTTransferNormalAbnormal(BaseNormalAbnormal):
         super().__init__(model=model, *args, **kwargs)
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=2e-4)
+        return torch.optim.Adam(self.parameters(), lr=3e-5)
 
 # --------------------- Preprocessing ---------------------
 
@@ -53,7 +53,7 @@ def preprocess_image(image: torch.Tensor):
 # --------------------- DataModule ---------------------
 
 dm = H5DataModule(os.getenv("DATA_FILE"),
-                  batch_size=12,
+                  batch_size=32,
                   train_folds=[0, 1, 2],
                   val_folds=[3],
                   test_folds=[4],
