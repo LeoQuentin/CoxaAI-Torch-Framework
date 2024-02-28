@@ -34,16 +34,17 @@ class BaseNormalAbnormal(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         pixel_values, labels = batch
         logits = self(pixel_values)
+        pred_labels = torch.argmax(preds, dim=1)
 
         # Calculate metrics
         loss = torch.nn.functional.cross_entropy(logits, labels.long())
-        acc = self.accuracy(logits, labels)
-        mcc = self.mcc(logits, labels)
+        acc = self.accuracy(pred_labels, labels)
+        mcc = self.mcc(pred_labels, labels)
 
         # Log metrics
         self.log('val_loss', loss)
-        # self.log('val_acc', acc)
-        # self.log('val_mcc', mcc)
+        self.log('val_acc', acc)
+        self.log('val_mcc', mcc)
         return loss
 
     def configure_optimizers(self):
