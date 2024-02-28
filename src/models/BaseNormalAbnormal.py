@@ -17,8 +17,8 @@ class BaseNormalAbnormal(pl.LightningModule):
         self.model = model
 
         # Metrics
-        # self.accuracy = torchmetrics.Accuracy(threshold=0.5, task="binary")
-        # self.mcc = torchmetrics.MatthewsCorrCoef(task="binary")
+        self.accuracy = torchmetrics.Accuracy(threshold=0.5, task="binary")
+        self.mcc = torchmetrics.MatthewsCorrCoef(task="binary")
 
     def forward(self, pixel_values):
         outputs = self.model(pixel_values=pixel_values)
@@ -37,8 +37,8 @@ class BaseNormalAbnormal(pl.LightningModule):
 
         # Calculate metrics
         loss = torch.nn.functional.cross_entropy(logits, labels.long())
-        # acc = self.accuracy(logits, labels)
-        # mcc = self.mcc(logits, labels)
+        acc = self.accuracy(logits, labels)
+        mcc = self.mcc(logits, labels)
 
         # Log metrics
         self.log('val_loss', loss)
