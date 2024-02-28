@@ -34,7 +34,7 @@ class BaseNormalAbnormal(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         pixel_values, labels = batch
         logits = self(pixel_values)
-        pred_labels = torch.argmax(preds, dim=1)
+        pred_labels = torch.argmax(logits, dim=1)
 
         # Calculate metrics
         loss = torch.nn.functional.cross_entropy(logits, labels.long())
