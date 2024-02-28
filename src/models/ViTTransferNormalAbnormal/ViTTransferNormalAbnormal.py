@@ -33,7 +33,7 @@ class ViTTransferNormalAbnormal(BaseNormalAbnormal):
         super().__init__(model=model, *args, **kwargs)
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=6e-5)
+        return torch.optim.Adam(self.parameters(), lr=2e-4)
 
 # --------------------- Preprocessing ---------------------
 
