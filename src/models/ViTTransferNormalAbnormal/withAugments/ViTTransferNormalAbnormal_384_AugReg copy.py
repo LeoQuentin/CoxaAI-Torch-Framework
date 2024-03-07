@@ -153,7 +153,8 @@ if __name__ == "__main__":
                          accelerator="auto",
                          callbacks=[early_stopping, model_checkpoint],
                          logger=logger,
-                         log_every_n_steps=25)
+                         log_every_n_steps=25,
+                         precision="bf16")
 
     # --------------------- Training ---------------------
 
