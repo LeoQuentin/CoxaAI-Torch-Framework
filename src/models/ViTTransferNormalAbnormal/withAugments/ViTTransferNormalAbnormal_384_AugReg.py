@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 
 # huggingface model
-from transformers import ViTImageProcessor, ViTForImageClassification
+from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
 # Lightning
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
@@ -27,18 +27,23 @@ from src.utilities.AutoAugment.autoaugment import ImageNetPolicy # noqa
 if __name__ == "__main__":
     # Model ID
     model_id = "google/vit-base-patch16-384"
+    config = ViTConfig.from_pretrained("google/vit-base-patch16-384")
+
+    # Set config hyperparameters
+    config.hidden_dropout_prob = 0.2
+    config.attention_probs_dropout_prob = 0.2
 
     # --------------------- Model ---------------------
 
     class ViTTransferNormalAbnormal(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ViTForImageClassification.from_pretrained(model_id)
+            model = ViTForImageClassification.from_pretrained(model_id, config=config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
-            return torch.optim.Adam(self.parameters(), lr=3e-5)
+            return torch.optim.Adam(self.parameters(), lr=5e-6)
 
     # --------------------- Preprocessing ---------------------
 
