@@ -20,7 +20,7 @@ if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
-from src.utilities.AutoAugment.autoaugment import ImageNetPolicy
+from src.utilities.AutoAugment.autoaugment import ImageNetPolicy # noqa
 
 
 # because pytorch is dumb:
@@ -145,7 +145,6 @@ if __name__ == "__main__":
                          callbacks=[early_stopping, model_checkpoint],
                          logger=logger,
                          log_every_n_steps=25)
-
 
     # --------------------- Training ---------------------
 
