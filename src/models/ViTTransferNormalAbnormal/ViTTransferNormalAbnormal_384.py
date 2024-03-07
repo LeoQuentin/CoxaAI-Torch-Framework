@@ -36,6 +36,7 @@ class ViTTransferNormalAbnormal(BaseNormalAbnormal):
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=3e-5)
 
+
 # --------------------- Preprocessing ---------------------
 
 feature_extractor = ViTImageProcessor.from_pretrained(model_id)
@@ -50,6 +51,7 @@ def preprocess_image(image: torch.Tensor):
     if pixel_values.shape[0] == 1:  # Check if the batch dimension is 1
         pixel_values = pixel_values.squeeze(0)  # Remove the first dimension
     return pixel_values
+
 
 # --------------------- DataModule ---------------------
 

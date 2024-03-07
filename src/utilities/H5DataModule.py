@@ -12,9 +12,7 @@ class H5FoldDataset(Dataset):
                  file_path,
                  folds,
                  target_var='target',
-                 transform=None,
-                 tf_to_torch_channelswap=True,
-                 stack_channels=False):
+                 transform=None):
         """
         Initialize the Dataset object for loading data from specified folds in an H5 file.
 
@@ -40,9 +38,6 @@ class H5FoldDataset(Dataset):
         self.folds = folds
         self.target_var = target_var
         self.transform = transform
-        self.tf_to_torch_channelswap = tf_to_torch_channelswap
-        self.stack_channels = stack_channels
-
         with h5py.File(self.file_path, 'r') as h5_file:
             self.lengths = [h5_file[f'fold_{fold}/image'].shape[0] for fold in self.folds]
             self.index_mapping = []
@@ -58,16 +53,6 @@ class H5FoldDataset(Dataset):
         with h5py.File(self.file_path, 'r') as h5_file:
             image = h5_file[f'fold_{fold}/image'][index]
             target = h5_file[f'fold_{fold}/{self.target_var}'][index]  # Use the specified target
-
-            # Swap channels to PyTorch format
-            if self.tf_to_torch_channelswap:
-                image = np.transpose(image, (2, 0, 1))
-
-            # Stack channels if specified
-            if self.stack_channels:
-                along_axis = 0 if self.tf_to_torch_channelswap else 2
-                image = np.repeat(image, 3, axis=along_axis)
-            image = torch.from_numpy(image)
 
             # Apply transform if specified
             if self.transform:
@@ -112,8 +97,6 @@ class H5DataModule(pl.LightningDataModule):
                  train_transform=None,
                  val_transform=None,
                  test_transform=None,
-                 tf_to_torch_channelswap=True,
-                 stack_channels=False,
                  target_var='target'):
         super().__init__()
         self.data_file = data_file
@@ -124,8 +107,6 @@ class H5DataModule(pl.LightningDataModule):
         self.train_transform = train_transform
         self.val_transform = val_transform
         self.test_transform = test_transform
-        self.tf_to_torch_channelswap = tf_to_torch_channelswap
-        self.stack_channels = stack_channels
         self.target_var = target_var
 
     def setup(self, stage=None):
@@ -142,8 +123,6 @@ class H5DataModule(pl.LightningDataModule):
         common_params = {
             "file_path": self.data_file,
             "target_var": self.target_var,
-            "tf_to_torch_channelswap": self.tf_to_torch_channelswap,
-            "stack_channels": self.stack_channels
         }
 
         if stage == 'fit' or stage is None:
