@@ -30,8 +30,8 @@ if __name__ == "__main__":
     config = ViTConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
-    config.hidden_dropout_prob = 0.2
-    config.attention_probs_dropout_prob = 0.2
+    config.hidden_dropout_prob = 0.1
+    config.attention_probs_dropout_prob = 0.1
 
     # --------------------- Model ---------------------
 
@@ -45,9 +45,15 @@ if __name__ == "__main__":
         def configure_optimizers(self):
             return torch.optim.Adam(self.parameters(), lr=5e-6)
 
+        def forward(self, pixel_values):
+            outputs = self.model(pixel_values=pixel_values,
+                                 interpolate_pos_encoding=True)
+            return outputs.logits
+
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = ViTImageProcessor.from_pretrained(model_id)
+    feature_extractor.size = (640, 640)  # 40*40 patches
 
     size = (feature_extractor.size["height"], feature_extractor.size["width"])
 
@@ -153,7 +159,8 @@ if __name__ == "__main__":
                          accelerator="auto",
                          callbacks=[early_stopping, model_checkpoint],
                          logger=logger,
-                         log_every_n_steps=25)
+                         log_every_n_steps=25,
+                         precision="bf16")
 
     # --------------------- Training ---------------------
 
