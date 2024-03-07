@@ -44,6 +44,8 @@ if __name__ == "__main__":
 
     feature_extractor = ViTImageProcessor.from_pretrained(model_id)
 
+    size = (feature_extractor.size["height"], feature_extractor.size["width"])
+
     def train_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
         image = (image * 255).astype(np.uint8)
@@ -61,6 +63,7 @@ if __name__ == "__main__":
             raise
 
         transform_pipeline = transforms.Compose([
+            transforms.Resize(size),
             transforms.Grayscale(num_output_channels=3),
             transforms.RandomHorizontalFlip(),
             ImageNetPolicy(),
