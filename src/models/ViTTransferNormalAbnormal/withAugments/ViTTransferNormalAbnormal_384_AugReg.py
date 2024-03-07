@@ -117,7 +117,7 @@ if __name__ == "__main__":
     # --------------------- DataModule ---------------------
 
     dm = H5DataModule(os.getenv("DATA_FILE"),
-                      batch_size=1,
+                      batch_size=16,
                       train_folds=[0, 1, 2],
                       val_folds=[3],
                       test_folds=[4],
