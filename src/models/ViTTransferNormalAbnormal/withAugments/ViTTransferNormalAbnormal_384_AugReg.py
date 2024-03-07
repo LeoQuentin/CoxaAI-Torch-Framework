@@ -98,6 +98,7 @@ if __name__ == "__main__":
             raise
 
         transform_pipeline = transforms.Compose([
+            transforms.Resize(size),
             transforms.Grayscale(num_output_channels=3),
             transforms.ToTensor()
         ])
