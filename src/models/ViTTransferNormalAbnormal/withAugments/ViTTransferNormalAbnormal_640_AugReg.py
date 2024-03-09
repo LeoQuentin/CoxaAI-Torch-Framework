@@ -84,7 +84,7 @@ if __name__ == "__main__":
         data = feature_extractor(images=image,
                                  return_tensors="pt",
                                  input_data_format="channels_first",
-                                 do_rescale=True)
+                                 do_rescale=False)
         data = {"pixel_values": image}
         pixel_values = data["pixel_values"]
         if pixel_values.shape[0] == 1:  # Check if the batch dimension is 1
