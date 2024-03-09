@@ -24,6 +24,7 @@ from src.utilities.AutoAugment.autoaugment import ImageNetPolicy
 
 
 feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-384")
+print(feature_extractor.size)
 
 
 def preprocess_image(image):

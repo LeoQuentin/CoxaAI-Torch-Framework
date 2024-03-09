@@ -53,9 +53,8 @@ if __name__ == "__main__":
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = ViTImageProcessor.from_pretrained(model_id)
-    feature_extractor.size = (640, 640)  # 40*40 patches
-
-    size = (feature_extractor.size["height"], feature_extractor.size["width"])
+    size = (640, 640)
+    feature_extractor.size = size  # 40*40 patches
 
     def train_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
