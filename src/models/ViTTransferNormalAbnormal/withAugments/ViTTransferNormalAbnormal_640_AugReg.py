@@ -35,7 +35,7 @@ if __name__ == "__main__":
     training_params = {
         "batch_size": 8,
         "early_stopping_patience": 10,
-        "max_time": timedelta(hours=12),
+        "max_time_hours": timedelta(hours=12),
         "train_folds": [0, 1, 2],
         "val_folds": [3],
         "test_folds": [4]
