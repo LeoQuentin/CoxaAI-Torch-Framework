@@ -54,11 +54,6 @@ if __name__ == "__main__":
         def configure_optimizers(self):
             return torch.optim.Adam(self.parameters(), lr=5e-6)
 
-        def forward(self, pixel_values):
-            outputs = self.model(pixel_values=pixel_values,
-                                 interpolate_pos_encoding=True)
-            return outputs.logits
-
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = AutoImageProcessor.from_pretrained(model_id)

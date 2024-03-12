@@ -1,7 +1,6 @@
 # Description: PyTorch Dataset and DataModule classes for loading H5 datasets to PyTorch models.
 from torch.utils.data import DataLoader
 import h5py
-import numpy as np
 import torch
 from torch.utils.data import Dataset
 import pytorch_lightning as pl
