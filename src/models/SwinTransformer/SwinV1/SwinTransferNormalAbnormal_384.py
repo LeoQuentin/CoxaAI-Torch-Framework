@@ -14,7 +14,8 @@ if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
 from src.models.SimpleTrainingLoop import train_model # noqa
-from src.utilities import H5DataModule, np_image_to_PIL # noqa
+from src.utilities.H5DataModule import H5DataModule # noqa
+from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
 
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     # Training parameters
     training_params = {
         "batch_size": 8,
-        "early_stopping_patience": 10,
+        "early_stopping_patience": 16,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
         "val_folds": [3],

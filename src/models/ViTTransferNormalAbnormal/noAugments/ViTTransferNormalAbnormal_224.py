@@ -6,7 +6,6 @@ import numpy as np
 # huggingface model
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
 # Lightning
-from datetime import timedelta
 import os
 import sys
 import dotenv

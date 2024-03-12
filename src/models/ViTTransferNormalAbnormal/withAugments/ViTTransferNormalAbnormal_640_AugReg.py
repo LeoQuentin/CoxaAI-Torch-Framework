@@ -4,7 +4,6 @@ from torchvision import transforms
 # huggingface model
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
 # Lightning
-from datetime import timedelta
 import os
 import sys
 import dotenv
@@ -15,7 +14,8 @@ if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
 from src.models.SimpleTrainingLoop import train_model # noqa
-from src.utilities import H5DataModule, np_image_to_PIL # noqa
+from src.utilities.H5DataModule import H5DataModule # noqa
+from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
 
