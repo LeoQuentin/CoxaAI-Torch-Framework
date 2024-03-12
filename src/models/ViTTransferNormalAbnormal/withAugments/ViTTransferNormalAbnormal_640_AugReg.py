@@ -6,9 +6,6 @@ import numpy as np
 # huggingface model
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
 # Lightning
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from pytorch_lightning.loggers import CSVLogger
 from datetime import timedelta
 import os
 import sys
@@ -19,11 +16,12 @@ project_root = os.getenv('PROJECT_ROOT')
 if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
+from src.models.SimpleTrainingLoop import train_model # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
-from src.utilities.AutoAugment.autoaugment import ImageNetPolicy # noqa
+from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
 
-# because pytorch is dumb:
+# because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
     model_id = "google/vit-base-patch16-384"
@@ -32,6 +30,16 @@ if __name__ == "__main__":
     # Set config hyperparameters
     config.hidden_dropout_prob = 0.1
     config.attention_probs_dropout_prob = 0.1
+
+    # Training parameters
+    training_params = {
+        "batch_size": 8,
+        "early_stopping_patience": 10,
+        "max_time": timedelta(hours=12),
+        "train_folds": [0, 1, 2],
+        "val_folds": [3],
+        "test_folds": [4]
+    }
 
     # --------------------- Model ---------------------
 
@@ -93,8 +101,9 @@ if __name__ == "__main__":
 
     def val_test_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
-        image = (image * 255).astype(np.uint8)
+        image = (image * 255).astype(np.uint8)  # PIL expects uint8, kinda dumb
 
+        # Since img is 3 channels and PIL expects 2 dimensions, we need to remove the channel dim
         if image.ndim == 3 and image.shape[-1] == 1:
             image = np.squeeze(image, axis=-1)
 
@@ -107,22 +116,23 @@ if __name__ == "__main__":
             print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
             raise
 
+        # Preprocess the image
         transform_pipeline = transforms.Compose([
             transforms.Resize(size),
-            transforms.Grayscale(num_output_channels=3),
+            transforms.Grayscale(num_output_channels=3),  # we need 3 channels to use pretrained
             transforms.ToTensor()
         ])
         image = transform_pipeline(image)
 
-        data = feature_extractor(images=image,
-                                 return_tensors="pt",
-                                 input_data_format="channels_first",
-                                 do_rescale=True)
-        data = {"pixel_values": image}
-        pixel_values = data["pixel_values"]
-        if pixel_values.shape[0] == 1:  # Check if the batch dimension is 1
-            pixel_values = pixel_values.squeeze(0)  # Remove the first dimension
-        return pixel_values
+        # Extract features using the feature extractor from Huggingface
+        image = feature_extractor(images=image,
+                                  return_tensors="pt",
+                                  input_data_format="channels_first",
+                                  do_rescale=False)  # false since transforms.ToTensor does it
+        # Sometimes the feature extractor adds a batch dim
+        if len(image.shape) == 4:
+            image = image.squeeze(0)  # Remove the batch dim
+        return image
 
     # --------------------- DataModule ---------------------
 
@@ -140,26 +150,15 @@ if __name__ == "__main__":
     # ------------------ Instanciate model ------------------
 
     model = ViTTransferNormalAbnormal()
-    model_class_name = model.__class__.__name__
 
-    # --------------------- Callbacks ---------------------
+    # log training parameters
+    model.save_hyperparameters(training_params)
 
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10)
-    model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
-                                       filename=f'{model_class_name}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}', # noqa
-                                       monitor='val_loss',
-                                       mode='min')
-    log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
+    # --------------------- Train ---------------------
 
-    logger = CSVLogger(save_dir=log_dir, name=model_class_name, flush_logs_every_n_steps=10)
+    print(model)
 
-    # --------------------- Trainer ---------------------
-    trainer = pl.Trainer(max_time=timedelta(hours=12),
-                         accelerator="auto",
-                         callbacks=[early_stopping, model_checkpoint],
-                         logger=logger,
-                         log_every_n_steps=25)
+    # accepted_params = ["early_stopping_patience", "max_time", "train_folds", "val_folds", "test_folds"] # noqa
+    # training_params = {k: v for k, v in training_params.items() if k in accepted_params}
 
-    # --------------------- Training ---------------------
-
-    trainer.fit(model, dm)
+    # trainer, path_to_bet_model = train_model(dm, model, **training_params)

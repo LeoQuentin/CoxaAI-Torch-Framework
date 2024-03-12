@@ -30,44 +30,44 @@ class ConvNextV2NormalAbnormal(BaseNormalAbnormal):
                                               num_channels=1,  # For grayscale images
                                               image_size=800)  # Customize your config here
         convnext_v2_model = ConvNextV2ForImageClassification(convnext_v2_config)
+        print(ConvNextV2Config)
 
         super().__init__(model=convnext_v2_model, *args, **kwargs)
 
+
 # --------------------- DataModule ---------------------
 
-
-dm = H5DataModule(os.getenv("DATA_FILE"),
-                  batch_size=16,
-                  train_folds=[0, 1, 2],
-                  val_folds=[3],
-                  test_folds=[4],
-                  target_var='target',
-                  tf_to_torch_channelswap=True,
-                  stack_channels=False)
+# dm = H5DataModule(os.getenv("DATA_FILE"),
+#                   batch_size=16,
+#                   train_folds=[0, 1, 2],
+#                   val_folds=[3],
+#                   test_folds=[4],
+#                   target_var='target')
 
 
-# --------------------- Callbacks ---------------------
+# # --------------------- Callbacks ---------------------
 
-early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
-                                   filename='ConvNextV2NormalAbnormal_best_checkpoint',
-                                   monitor='val_loss',
-                                   mode='min')
-log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
+# early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+# model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
+#                                    filename='ConvNextV2NormalAbnormal_best_checkpoint',
+#                                    monitor='val_loss',
+#                                    mode='min')
+# log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
 
-logger = CSVLogger(save_dir=log_dir, name="ConvNextV2NormalAbnormal", flush_logs_every_n_steps=10)
+# logger = CSVLogger(save_dir=log_dir, name="ConvNextV2NormalAbnormal", flush_logs_every_n_steps=10)
 
 
-# --------------------- Trainer ---------------------
-trainer = pl.Trainer(max_time=timedelta(hours=6),
-                     accelerator="auto",
-                     callbacks=[early_stopping, model_checkpoint],
-                     logger=logger,
-                     log_every_n_steps=25)
+# # --------------------- Trainer ---------------------
+# trainer = pl.Trainer(max_time=timedelta(hours=6),
+#                      accelerator="auto",
+#                      callbacks=[early_stopping, model_checkpoint],
+#                      logger=logger,
+#                      log_every_n_steps=25)
 
 
 # --------------------- Training ---------------------
 
 model = ConvNextV2NormalAbnormal()
+# print(model)
 
-trainer.fit(model, dm)
+# trainer.fit(model, dm)
