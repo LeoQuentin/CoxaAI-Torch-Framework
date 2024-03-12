@@ -1,14 +1,18 @@
 import torch # noqa
 from torchvision import transforms
+import os
+from datetime import timedelta
+import sys
+import dotenv
 
 # huggingface model
 from transformers import SwinConfig, SwinForImageClassification, AutoImageProcessor
 # Lightning
-import os
-import sys
-import dotenv
-dotenv.load_dotenv()
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.loggers import CSVLogger
 
+dotenv.load_dotenv()
 project_root = os.getenv('PROJECT_ROOT')
 if project_root:
     sys.path.append(project_root)
@@ -39,7 +43,9 @@ if __name__ == "__main__":
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
         "val_folds": [3],
-        "test_folds": [4]
+        "test_folds": [4],
+        "log_every_n_steps": 25,
+        "presicion": "32-true"
     }
 
     # --------------------- Model ---------------------
@@ -127,7 +133,31 @@ if __name__ == "__main__":
 
     # --------------------- Train ---------------------
 
-    accepted_params = ["early_stopping_patience", "max_time_hours"] # noqa
-    training_params = {k: v for k, v in training_params.items() if k in accepted_params}
+    early_stopping = EarlyStopping(monitor='val_loss',
+                                   patience=training_params["early_stopping_patience"])
+    model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
+                                       filename=f'{model.__class__.__name__}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                       monitor='val_loss',
+                                       mode='min',
+                                       save_top_k=1)
 
-    trainer, path_to_bet_model = train_model(dm, model, **training_params)
+    # Logger
+    log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
+    logger = CSVLogger(save_dir=log_dir,
+                       name=model.__class__.__name__,
+                       flush_logs_every_n_steps=training_params["log_every_n_steps"])
+
+    # Trainer
+    trainer = Trainer(max_time=timedelta(hours=training_params["max_time_hours"]),
+                      accelerator="auto",
+                      callbacks=[early_stopping, model_checkpoint],
+                      logger=logger,
+                      log_every_n_steps=training_params["log_every_n_steps"],
+                      precision=training_params["presicion"])
+
+    # Training
+    trainer.fit(model, dm)
+
+    # Best model path
+    best_model_path = model_checkpoint.best_model_path
+    print(f"Best model path: {best_model_path}")
