@@ -2,6 +2,7 @@ import os
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger
+from datetime import timedelta
 
 
 def train_model(dm,
@@ -40,7 +41,7 @@ def train_model(dm,
                        flush_logs_every_n_steps=log_every_n_steps)
 
     # Trainer
-    trainer = Trainer(max_time={'hours': max_time_hours},
+    trainer = Trainer(max_time=timedelta(hours=max_time_hours),
                       accelerator="auto",
                       callbacks=[early_stopping, model_checkpoint],
                       logger=logger,

@@ -2,9 +2,8 @@ import torch # noqa
 from torchvision import transforms
 
 # huggingface model
-from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
+from transformers import SwinConfig, SwinForImageClassification, AutoImageProcessor
 # Lightning
-from datetime import timedelta
 import os
 import sys
 import dotenv
@@ -22,15 +21,15 @@ from src.augmentation.autoaugment import ImageNetPolicy # noqa
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    model_id = "google/vit-base-patch16-384"
-    config = ViTConfig.from_pretrained(model_id)
+    model_id = "microsoft/swin-base-patch4-window12-384"
+    config = SwinConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
     config.hidden_dropout_prob = 0.1
     config.attention_probs_dropout_prob = 0.1
 
     # Other parameters
-    size = (640, 640)  # 40x40 patches
+    size = (384, 384)  # 40x40 patches
 
     # Training parameters
     training_params = {
@@ -44,10 +43,10 @@ if __name__ == "__main__":
 
     # --------------------- Model ---------------------
 
-    class ViTTransferNormalAbnormal(BaseNormalAbnormal):
+    class SwinTransferNormalAbnormal(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ViTForImageClassification.from_pretrained(model_id, config=config)
+            model = SwinForImageClassification.from_pretrained(model_id, config=config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
@@ -61,7 +60,7 @@ if __name__ == "__main__":
 
     # --------------------- Preprocessing ---------------------
 
-    feature_extractor = ViTImageProcessor.from_pretrained(model_id)
+    feature_extractor = AutoImageProcessor.from_pretrained(model_id)
     feature_extractor.size = size
 
     def train_preprocess(image):
@@ -122,7 +121,7 @@ if __name__ == "__main__":
 
     # ------------------ Instanciate model ------------------
 
-    model = ViTTransferNormalAbnormal()
+    model = SwinTransferNormalAbnormal()
 
     # log training parameters
     model.save_hyperparameters(training_params)

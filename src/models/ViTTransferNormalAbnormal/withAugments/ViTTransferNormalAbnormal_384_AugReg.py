@@ -1,7 +1,5 @@
 import torch # noqa
 from torchvision import transforms
-from PIL import Image
-import numpy as np
 
 # huggingface model
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
@@ -17,7 +15,7 @@ if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
 from src.models.SimpleTrainingLoop import train_model # noqa
-from src.utilities.H5DataModule import H5DataModule # noqa
+from src.utilities import H5DataModule, np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
 
@@ -31,11 +29,14 @@ if __name__ == "__main__":
     config.hidden_dropout_prob = 0.1
     config.attention_probs_dropout_prob = 0.1
 
+    # Other parameters
+    size = (384, 384)  # 40x40 patches
+
     # Training parameters
     training_params = {
         "batch_size": 8,
         "early_stopping_patience": 10,
-        "max_time_hours": timedelta(hours=12),
+        "max_time_hours": 12,
         "train_folds": [0, 1, 2],
         "val_folds": [3],
         "test_folds": [4]
@@ -61,25 +62,11 @@ if __name__ == "__main__":
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = ViTImageProcessor.from_pretrained(model_id)
-    size = (384, 384)
-    feature_extractor.size = size  # 40*40 patches
+    feature_extractor.size = size
 
     def train_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
-        image = (image * 255).astype(np.uint8)  # PIL expects uint8, kinda dumb
-
-        # Since img is 3 channels and PIL expects 2 dimensions, we need to remove the channel dim
-        if image.ndim == 3 and image.shape[-1] == 1:
-            image = np.squeeze(image, axis=-1)
-
-        # Now convert to a PIL Image
-        try:
-            image = Image.fromarray(image)
-        except TypeError as e:
-            print(f"Error converting array to image: {e}")
-            # Additional debugging info
-            print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
-            raise
+        image = np_image_to_PIL(image)  # convert to PIL image
 
         # Preprocess the image
         transform_pipeline = transforms.Compose([
@@ -103,17 +90,7 @@ if __name__ == "__main__":
 
     def val_test_preprocess(image):
         # basically same as train_preprocess but without the augmentations
-        image = (image * 255).astype(np.uint8)
-
-        if image.ndim == 3 and image.shape[-1] == 1:
-            image = np.squeeze(image, axis=-1)
-
-        try:
-            image = Image.fromarray(image)
-        except TypeError as e:
-            print(f"Error converting array to image: {e}")
-            print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
-            raise
+        image = np_image_to_PIL(image)  # convert to PIL image
 
         transform_pipeline = transforms.Compose([
             transforms.Resize(size),
@@ -133,10 +110,10 @@ if __name__ == "__main__":
     # --------------------- DataModule ---------------------
 
     dm = H5DataModule(os.getenv("DATA_FILE"),
-                      batch_size=12,
-                      train_folds=[0, 1, 2],
-                      val_folds=[3],
-                      test_folds=[4],
+                      batch_size=training_params["batch_size"],
+                      train_folds=training_params["train_folds"],
+                      val_folds=training_params["val_folds"],
+                      test_folds=training_params["test_folds"],
                       target_var='target',
                       train_transform=train_preprocess,
                       val_transform=val_test_preprocess,
@@ -149,10 +126,11 @@ if __name__ == "__main__":
 
     # log training parameters
     model.save_hyperparameters(training_params)
+    model.save_hyperparameters({"size": size})
 
     # --------------------- Train ---------------------
 
-    accepted_params = ["early_stopping_patience", "max_time_hours", "train_folds", "val_folds", "test_folds"] # noqa
+    accepted_params = ["early_stopping_patience", "max_time_hours"] # noqa
     training_params = {k: v for k, v in training_params.items() if k in accepted_params}
 
     trainer, path_to_bet_model = train_model(dm, model, **training_params)
