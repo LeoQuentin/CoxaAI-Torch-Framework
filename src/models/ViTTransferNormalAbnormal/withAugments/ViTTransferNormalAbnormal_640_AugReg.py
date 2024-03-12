@@ -61,45 +61,10 @@ if __name__ == "__main__":
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = ViTImageProcessor.from_pretrained(model_id)
-    size = (640, 640)
-    feature_extractor.size = size  # 40*40 patches
+    size = (640, 640)  # 40x40 patches
+    feature_extractor.size = size
 
     def train_preprocess(image):
-        # image is a numpy array in the shape (H, W, C)
-        image = (image * 255).astype(np.uint8)
-
-        if image.ndim == 3 and image.shape[-1] == 1:
-            image = np.squeeze(image, axis=-1)
-
-        # Now convert to a PIL Image
-        try:
-            image = Image.fromarray(image)
-        except TypeError as e:
-            print(f"Error converting array to image: {e}")
-            # Additional debugging info
-            print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
-            raise
-
-        transform_pipeline = transforms.Compose([
-            transforms.Resize(size),
-            transforms.Grayscale(num_output_channels=3),
-            transforms.RandomHorizontalFlip(),
-            ImageNetPolicy(),
-            transforms.ToTensor()
-        ])
-        image = transform_pipeline(image)
-
-        data = feature_extractor(images=image,
-                                 return_tensors="pt",
-                                 input_data_format="channels_first",
-                                 do_rescale=False)
-        data = {"pixel_values": image}
-        pixel_values = data["pixel_values"]
-        if pixel_values.shape[0] == 1:  # Check if the batch dimension is 1
-            pixel_values = pixel_values.squeeze(0)  # Remove the first dimension
-        return pixel_values
-
-    def val_test_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
         image = (image * 255).astype(np.uint8)  # PIL expects uint8, kinda dumb
 
@@ -119,7 +84,9 @@ if __name__ == "__main__":
         # Preprocess the image
         transform_pipeline = transforms.Compose([
             transforms.Resize(size),
-            transforms.Grayscale(num_output_channels=3),  # we need 3 channels to use pretrained
+            transforms.Grayscale(num_output_channels=3),
+            transforms.RandomHorizontalFlip(),
+            ImageNetPolicy(),
             transforms.ToTensor()
         ])
         image = transform_pipeline(image)
@@ -134,13 +101,42 @@ if __name__ == "__main__":
             image = image.squeeze(0)  # Remove the batch dim
         return image
 
+    def val_test_preprocess(image):
+        # basically same as train_preprocess but without the augmentations
+        image = (image * 255).astype(np.uint8)
+
+        if image.ndim == 3 and image.shape[-1] == 1:
+            image = np.squeeze(image, axis=-1)
+
+        try:
+            image = Image.fromarray(image)
+        except TypeError as e:
+            print(f"Error converting array to image: {e}")
+            print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
+            raise
+
+        transform_pipeline = transforms.Compose([
+            transforms.Resize(size),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor()
+        ])
+        image = transform_pipeline(image)
+
+        image = feature_extractor(images=image,
+                                  return_tensors="pt",
+                                  input_data_format="channels_first",
+                                  do_rescale=False)
+        if len(image.shape) == 4:
+            image = image.squeeze(0)
+        return image
+
     # --------------------- DataModule ---------------------
 
     dm = H5DataModule(os.getenv("DATA_FILE"),
-                      batch_size=8,
-                      train_folds=[0, 1, 2],
-                      val_folds=[3],
-                      test_folds=[4],
+                      batch_size=training_params["batch_size"],
+                      train_folds=training_params["train_folds"],
+                      val_folds=training_params["val_folds"],
+                      test_folds=training_params["test_folds"],
                       target_var='target',
                       train_transform=train_preprocess,
                       val_transform=val_test_preprocess,
@@ -156,7 +152,7 @@ if __name__ == "__main__":
 
     # --------------------- Train ---------------------
 
-    accepted_params = ["early_stopping_patience", "max_time", "train_folds", "val_folds", "test_folds"] # noqa
+    accepted_params = ["early_stopping_patience", "max_time_hours"] # noqa
     training_params = {k: v for k, v in training_params.items() if k in accepted_params}
 
     trainer, path_to_bet_model = train_model(dm, model, **training_params)
