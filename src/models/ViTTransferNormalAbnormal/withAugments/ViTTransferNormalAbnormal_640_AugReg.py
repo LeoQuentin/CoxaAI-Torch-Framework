@@ -156,9 +156,7 @@ if __name__ == "__main__":
 
     # --------------------- Train ---------------------
 
-    print(model)
+    accepted_params = ["early_stopping_patience", "max_time", "train_folds", "val_folds", "test_folds"] # noqa
+    training_params = {k: v for k, v in training_params.items() if k in accepted_params}
 
-    # accepted_params = ["early_stopping_patience", "max_time", "train_folds", "val_folds", "test_folds"] # noqa
-    # training_params = {k: v for k, v in training_params.items() if k in accepted_params}
-
-    # trainer, path_to_bet_model = train_model(dm, model, **training_params)
+    trainer, path_to_bet_model = train_model(dm, model, **training_params)
