@@ -18,6 +18,8 @@ from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
 from src.models.SimpleTrainingLoop import train_model # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
+from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
+
 
 
 # because pytorch is dumb we have to do __init__:
@@ -65,52 +67,32 @@ if __name__ == "__main__":
 
     def train_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
-        image = (image * 255).astype(np.uint8)  # PIL expects uint8, kinda dumb
-
-        # Since img is 3 channels and PIL expects 2 dimensions, we need to remove the channel dim
-        if image.ndim == 3 and image.shape[-1] == 1:
-            image = np.squeeze(image, axis=-1)
-
-        # Now convert to a PIL Image
-        try:
-            image = Image.fromarray(image)
-        except TypeError as e:
-            print(f"Error converting array to image: {e}")
-            # Additional debugging info
-            print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
-            raise
+        image = np_image_to_PIL(image)  # convert to PIL image
 
         # Preprocess the image
         transform_pipeline = transforms.Compose([
             transforms.Resize(size),
             transforms.Grayscale(num_output_channels=3),
+            transforms.RandomHorizontalFlip(),
+            ImageNetPolicy(),
             transforms.ToTensor()
         ])
         image = transform_pipeline(image)
 
         # Extract features using the feature extractor from Huggingface
-        image = feature_extractor(images=image,
-                                  return_tensors="pt",
-                                  input_data_format="channels_first",
-                                  do_rescale=False)  # false since transforms.ToTensor does it
+        data = feature_extractor(images=image,
+                                 return_tensors="pt",
+                                 input_data_format="channels_first",
+                                 do_rescale=False)  # false since transforms.ToTensor does it
         # Sometimes the feature extractor adds a batch dim
-        if len(image.shape) == 4:
-            image = image.squeeze(0)  # Remove the batch dim
+        image = data["pixel_values"]
+        if len(image.size()) == 4:
+            image = image.squeeze(0)
         return image
 
     def val_test_preprocess(image):
         # basically same as train_preprocess but without the augmentations
-        image = (image * 255).astype(np.uint8)
-
-        if image.ndim == 3 and image.shape[-1] == 1:
-            image = np.squeeze(image, axis=-1)
-
-        try:
-            image = Image.fromarray(image)
-        except TypeError as e:
-            print(f"Error converting array to image: {e}")
-            print(f"Array shape: {image.shape}, Array dtype: {image.dtype}")
-            raise
+        image = np_image_to_PIL(image)  # convert to PIL image
 
         transform_pipeline = transforms.Compose([
             transforms.Resize(size),
@@ -119,11 +101,12 @@ if __name__ == "__main__":
         ])
         image = transform_pipeline(image)
 
-        image = feature_extractor(images=image,
-                                  return_tensors="pt",
-                                  input_data_format="channels_first",
-                                  do_rescale=False)
-        if len(image.shape) == 4:
+        data = feature_extractor(images=image,
+                                 return_tensors="pt",
+                                 input_data_format="channels_first",
+                                 do_rescale=False)
+        image = data["pixel_values"]
+        if len(image.size()) == 4:
             image = image.squeeze(0)
         return image
 

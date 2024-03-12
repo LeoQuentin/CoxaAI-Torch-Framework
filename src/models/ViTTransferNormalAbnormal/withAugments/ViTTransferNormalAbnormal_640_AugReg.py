@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # Training parameters
     training_params = {
-        "batch_size": 8,
+        "batch_size": 1,
         "early_stopping_patience": 10,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
@@ -79,13 +79,14 @@ if __name__ == "__main__":
         image = transform_pipeline(image)
 
         # Extract features using the feature extractor from Huggingface
-        image = feature_extractor(images=image,
-                                  return_tensors="pt",
-                                  input_data_format="channels_first",
-                                  do_rescale=False)  # false since transforms.ToTensor does it
+        data = feature_extractor(images=image,
+                                 return_tensors="pt",
+                                 input_data_format="channels_first",
+                                 do_rescale=False)  # false since transforms.ToTensor does it
         # Sometimes the feature extractor adds a batch dim
-        if len(image.shape) == 4:
-            image = image.squeeze(0)  # Remove the batch dim
+        image = data["pixel_values"]
+        if len(image.size()) == 4:
+            image = image.squeeze(0)
         return image
 
     def val_test_preprocess(image):
@@ -99,11 +100,12 @@ if __name__ == "__main__":
         ])
         image = transform_pipeline(image)
 
-        image = feature_extractor(images=image,
-                                  return_tensors="pt",
-                                  input_data_format="channels_first",
-                                  do_rescale=False)
-        if len(image.shape) == 4:
+        data = feature_extractor(images=image,
+                                 return_tensors="pt",
+                                 input_data_format="channels_first",
+                                 do_rescale=False)
+        image = data["pixel_values"]
+        if len(image.size()) == 4:
             image = image.squeeze(0)
         return image
 
