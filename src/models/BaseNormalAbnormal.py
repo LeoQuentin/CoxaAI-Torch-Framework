@@ -52,6 +52,9 @@ class BaseNormalAbnormal(pl.LightningModule):
         logits = self(pixel_values)
         pred_labels = torch.argmax(logits, dim=1)
 
+        # Move metrics to device
+        self.metrics_to_device()
+
         # Calculate metrics
         loss = self.loss(logits, labels.long())
         acc = self.metrics["accuracy"](pred_labels, labels)
@@ -66,6 +69,9 @@ class BaseNormalAbnormal(pl.LightningModule):
         x, y = batch
         logits = self(x)
         preds = torch.argmax(logits, dim=1)
+
+        # Move metrics to device
+        self.metrics_to_device()
 
         loss = self.loss(logits, y)
 
@@ -93,3 +99,10 @@ class BaseNormalAbnormal(pl.LightningModule):
     def configure_loss_func(self):
         """To overwrite loss function when creating modules that subclass from this."""
         self.loss = nn.CrossEntropyLoss()
+
+    def metrics_to_device(self):
+        """Move all metrics to the current device."""
+        device = self.device
+        for metric in self.metrics.values():
+            metric.to(device)
+        self.confusionMatrix.to(device)
