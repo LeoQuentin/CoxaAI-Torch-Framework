@@ -61,7 +61,6 @@ if __name__ == "__main__":
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = AutoImageProcessor.from_pretrained(model_id)
-    feature_extractor.size = size
 
     def train_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
