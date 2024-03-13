@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     # Set config hyperparameters
     # ---------------------
+    config.num_labels = 2
 
     # Other parameters
     size = (800, 800)  # 40x40 patches
