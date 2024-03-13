@@ -83,7 +83,8 @@ if __name__ == "__main__":
         data = feature_extractor(images=image,
                                  return_tensors="pt",
                                  input_data_format="channels_first",
-                                 do_rescale=False)  # false since transforms.ToTensor does it
+                                 do_rescale=False,
+                                 do_resize=False)  # false since transforms.ToTensor does it
         # Sometimes the feature extractor adds a batch dim
         image = data["pixel_values"]
         if len(image.size()) == 4:
