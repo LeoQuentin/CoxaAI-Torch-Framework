@@ -98,8 +98,8 @@ class BaseNormalAbnormal(pl.LightningModule):
 
     def on_train_start(self):
         # Save optimizer and learning rate
-        self.save_hyperparameters({"optimizer", self.optimizers()})
-        self.save_hyperparameters({"lr", self.optimizers().param_groups[0]["lr"]})
+        self.save_hyperparameters({"optimizer": self.optimizers()})
+        self.save_hyperparameters({"lr": self.optimizers().param_groups[0]["lr"]})
 
     def configure_loss_func(self):
         """To overwrite loss function when creating modules that subclass from this."""
