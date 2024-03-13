@@ -1,4 +1,5 @@
 import torch # noqa
+import torch.nn as nn
 from torchvision import transforms
 import os
 from datetime import timedelta
@@ -31,7 +32,6 @@ if __name__ == "__main__":
 
     # Set config hyperparameters
     # ---------------------
-    config.num_labels = 2
 
     # Other parameters
     size = (800, 800)  # 40x40 patches
@@ -53,8 +53,9 @@ if __name__ == "__main__":
     class Resnet50(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ResNetForImageClassification.from_config(config=config,
-                                                             ignore_mismatched_sizes=True)
+            model = ResNetForImageClassification.from_pretrained(model_id, config=config)
+            model.classifier = nn.Sequential(nn.Flatten(),
+                                             nn.Linear(config.hidden_sizes[-1], 2))
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
