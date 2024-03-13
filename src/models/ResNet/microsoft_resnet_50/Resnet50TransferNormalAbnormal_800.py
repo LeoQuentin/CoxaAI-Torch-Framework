@@ -53,7 +53,9 @@ if __name__ == "__main__":
     class Resnet50(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ResNetForImageClassification.from_pretrained(model_id, config=config)
+            model = ResNetForImageClassification.from_pretrained(model_id,
+                                                                 config=config,
+                                                                 ignore_mismatched_sizes=True)
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
