@@ -21,6 +21,7 @@ class BaseNormalAbnormal(pl.LightningModule):
         self.configure_loss_func()
 
         # Metrics
+        device = self.device  # need to manually set device
         self.metrics = {
             "accuracy": torchmetrics.Accuracy(task="binary", num_classes=2),
             "precision": torchmetrics.Precision(task="binary", average='macro', num_classes=2),
@@ -30,6 +31,8 @@ class BaseNormalAbnormal(pl.LightningModule):
             "acc": torchmetrics.Accuracy(task="binary", num_classes=2),
             "mcc": torchmetrics.MatthewsCorrCoef(task="binary", num_classes=2),
         }
+        for name, metric in self.metrics.items():
+            metric.to(device)
         # Confusion Matrix has to be dealt with differently so it's not in the dictionary.
         self.confusionMatrix = torchmetrics.ConfusionMatrix(task="binary", num_classes=2)
 
