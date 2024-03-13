@@ -58,9 +58,6 @@ if __name__ == "__main__":
                                              nn.Linear(config.hidden_sizes[-1], 2))
             super().__init__(model=model, *args, **kwargs)
 
-        def configure_optimizers(self):
-            return torch.optim.Adam(self.parameters(), lr=5e-6)
-
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = AutoImageProcessor.from_pretrained(model_id)
