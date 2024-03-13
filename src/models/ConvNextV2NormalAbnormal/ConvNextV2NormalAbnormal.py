@@ -1,73 +1,165 @@
 import torch # noqa
-
-# huggingface model
-from transformers import ConvNextV2ForImageClassification, ConvNextV2Config
-
-# Lightning
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from pytorch_lightning.loggers import CSVLogger
-from datetime import timedelta
+import torch.nn as nn
+from torchvision import transforms
 import os
+from datetime import timedelta
 import sys
 import dotenv
-dotenv.load_dotenv()
 
+# huggingface model
+from transformers import AutoImageProcessor, ConvNextV2ForImageClassification, ConvNextV2Config
+# Lightning
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.loggers import CSVLogger
+
+dotenv.load_dotenv()
 project_root = os.getenv('PROJECT_ROOT')
 if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
+from src.models.SimpleTrainingLoop import train_model # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
+from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
+from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
 
-# --------------------- Model ---------------------
+# because pytorch is dumb we have to do __init__:
+if __name__ == "__main__":
+    # Model ID
+    model_id = "microsoft/resnet-50"
+    config = ConvNextV2Config.from_pretrained(model_id)
 
+    # Set config hyperparameters
+    # ---------------------
 
-class ConvNextV2NormalAbnormal(BaseNormalAbnormal):
-    def __init__(self, *args, **kwargs):
-        # Initialize the ConvNextV2 model with specific configuration
-        convnext_v2_config = ConvNextV2Config(num_labels=2,
-                                              num_channels=1,  # For grayscale images
-                                              image_size=800)  # Customize your config here
-        convnext_v2_model = ConvNextV2ForImageClassification(convnext_v2_config)
-        print(ConvNextV2Config)
+    # Other parameters
+    size = (800, 800)  # 40x40 patches
 
-        super().__init__(model=convnext_v2_model, *args, **kwargs)
+    # Training parameters
+    training_params = {
+        "batch_size": 16,
+        "early_stopping_patience": 16,
+        "max_time_hours": 12,
+        "train_folds": [0, 1, 2],
+        "val_folds": [3],
+        "test_folds": [4],
+        "log_every_n_steps": 25,
+        "presicion": "32-true"
+    }
 
+    # --------------------- Model ---------------------
 
-# --------------------- DataModule ---------------------
+    class Resnet50(BaseNormalAbnormal):
+        def __init__(self, *args, **kwargs):
+            # Initialize the ConvNextV2 model with specific configuration
+            model = ResNetForImageClassification.from_pretrained(model_id, config=config)
+            model.classifier = nn.Sequential(nn.Flatten(),
+                                             nn.Linear(config.hidden_sizes[-1], 2))
+            super().__init__(model=model, *args, **kwargs)
 
-# dm = H5DataModule(os.getenv("DATA_FILE"),
-#                   batch_size=16,
-#                   train_folds=[0, 1, 2],
-#                   val_folds=[3],
-#                   test_folds=[4],
-#                   target_var='target')
+        def configure_optimizers(self):
+            return torch.optim.Adam(self.parameters(), lr=5e-6)
 
+    # --------------------- Preprocessing ---------------------
 
-# # --------------------- Callbacks ---------------------
+    feature_extractor = AutoImageProcessor.from_pretrained(model_id)
 
-# early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-# model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
-#                                    filename='ConvNextV2NormalAbnormal_best_checkpoint',
-#                                    monitor='val_loss',
-#                                    mode='min')
-# log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
+    def train_preprocess(image):
+        # image is a numpy array in the shape (H, W, C)
+        image = np_image_to_PIL(image)  # convert to PIL image
 
-# logger = CSVLogger(save_dir=log_dir, name="ConvNextV2NormalAbnormal", flush_logs_every_n_steps=10)
+        # Preprocess the image
+        transform_pipeline = transforms.Compose([
+            transforms.Resize(size),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.RandomHorizontalFlip(),
+            ImageNetPolicy(),
+            transforms.ToTensor()
+        ])
+        image = transform_pipeline(image)
 
+        # Extract features using the feature extractor from Huggingface
+        data = feature_extractor(images=image,
+                                 return_tensors="pt",
+                                 input_data_format="channels_first",
+                                 do_rescale=False,  # false since transforms.ToTensor does it
+                                 do_resize=False)
+        # Sometimes the feature extractor adds a batch dim
+        image = data["pixel_values"]
+        if len(image.size()) == 4:
+            image = image.squeeze(0)
+        return image
 
-# # --------------------- Trainer ---------------------
-# trainer = pl.Trainer(max_time=timedelta(hours=6),
-#                      accelerator="auto",
-#                      callbacks=[early_stopping, model_checkpoint],
-#                      logger=logger,
-#                      log_every_n_steps=25)
+    def val_test_preprocess(image):
+        # basically same as train_preprocess but without the augmentations
+        image = np_image_to_PIL(image)  # convert to PIL image
 
+        transform_pipeline = transforms.Compose([
+            transforms.Resize(size),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor()
+        ])
+        image = transform_pipeline(image)
 
-# --------------------- Training ---------------------
+        data = feature_extractor(images=image,
+                                 return_tensors="pt",
+                                 input_data_format="channels_first",
+                                 do_rescale=False,
+                                 do_resize=False)
+        image = data["pixel_values"]
+        if len(image.size()) == 4:
+            image = image.squeeze(0)
+        return image
 
-model = ConvNextV2NormalAbnormal()
-# print(model)
+    # --------------------- DataModule ---------------------
 
-# trainer.fit(model, dm)
+    dm = H5DataModule(os.getenv("DATA_FILE"),
+                      batch_size=training_params["batch_size"],
+                      train_folds=training_params["train_folds"],
+                      val_folds=training_params["val_folds"],
+                      test_folds=training_params["test_folds"],
+                      target_var='target',
+                      train_transform=train_preprocess,
+                      val_transform=val_test_preprocess,
+                      test_transform=val_test_preprocess
+                      )
+
+    # ------------------ Instanciate model ------------------
+
+    model = Resnet50()
+
+    # log training parameters
+    model.save_hyperparameters(training_params)
+    model.save_hyperparameters({"size": size})
+
+    # --------------------- Train ---------------------
+
+    early_stopping = EarlyStopping(monitor='val_loss',
+                                   patience=training_params["early_stopping_patience"])
+    model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
+                                       filename=f'{model.__class__.__name__}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                       monitor='val_loss',
+                                       mode='min',
+                                       save_top_k=1)
+
+    # Logger
+    log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
+    logger = CSVLogger(save_dir=log_dir,
+                       name=model.__class__.__name__,
+                       flush_logs_every_n_steps=training_params["log_every_n_steps"])
+
+    # Trainer
+    trainer = Trainer(max_time=timedelta(hours=training_params["max_time_hours"]),
+                      accelerator="auto",
+                      callbacks=[early_stopping, model_checkpoint],
+                      logger=logger,
+                      log_every_n_steps=training_params["log_every_n_steps"],
+                      precision=training_params["presicion"])
+
+    # Training
+    trainer.fit(model, dm)
+
+    # Best model path
+    best_model_path = model_checkpoint.best_model_path
+    print(f"Best model path: {best_model_path}")

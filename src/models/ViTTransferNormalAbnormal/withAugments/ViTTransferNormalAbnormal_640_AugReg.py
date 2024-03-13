@@ -26,8 +26,8 @@ if __name__ == "__main__":
     config = ViTConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
-    config.hidden_dropout_prob = 0.1
-    config.attention_probs_dropout_prob = 0.1
+    config.hidden_dropout_prob = 0.2
+    config.attention_probs_dropout_prob = 0.2
 
     # Other parameters
     size = (640, 640)  # 40x40 patches
@@ -82,7 +82,8 @@ if __name__ == "__main__":
         data = feature_extractor(images=image,
                                  return_tensors="pt",
                                  input_data_format="channels_first",
-                                 do_rescale=False)  # false since transforms.ToTensor does it
+                                 do_rescale=False,
+                                 do_resize=False)  # false since transforms.ToTensor does it
         # Sometimes the feature extractor adds a batch dim
         image = data["pixel_values"]
         if len(image.size()) == 4:
