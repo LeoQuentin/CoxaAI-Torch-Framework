@@ -53,7 +53,6 @@ if __name__ == "__main__":
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
             model = ResNetForImageClassification.from_pretrained(model_id, config=config)
-            model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
