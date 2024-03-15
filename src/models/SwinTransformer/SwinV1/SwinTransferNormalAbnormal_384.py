@@ -9,8 +9,9 @@ import dotenv
 from transformers import SwinConfig, SwinForImageClassification, AutoImageProcessor
 # Lightning
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, LearningRateMonitor, GradientAccumulationScheduler, StochasticWeightAveraging
 from pytorch_lightning.loggers import CSVLogger
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 dotenv.load_dotenv()
 project_root = os.getenv('PROJECT_ROOT')
@@ -29,8 +30,8 @@ if __name__ == "__main__":
     config = SwinConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
-    config.hidden_dropout_prob = 0.3
-    config.attention_probs_dropout_prob = 0.3
+    config.hidden_dropout_prob = 0.5
+    config.attention_probs_dropout_prob = 0.5
 
     # Other parameters
     size = (384, 384)  # 40x40 patches
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     # Training parameters
     training_params = {
         "batch_size": 32,
-        "early_stopping_patience": 16,
+        "early_stopping_patience": 40,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2, 3],
         "val_folds": [4],
@@ -57,7 +58,11 @@ if __name__ == "__main__":
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
-            return torch.optim.Adam(self.parameters(), lr=5e-6)
+            lr_scheduler = {'scheduler': ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=7, verbose=True),
+                    'monitor': 'val_loss',  # Specify the metric you want to monitor
+                    'interval': 'epoch',
+                    'frequency': 1}
+            return [torch.optim.AdamW(self.parameters(), lr=5e-6, weight_decay=1e-2)], [lr_scheduler]
 
     # --------------------- Preprocessing ---------------------
 
@@ -132,6 +137,7 @@ if __name__ == "__main__":
 
     # --------------------- Train ---------------------
 
+    # callbacks
     early_stopping = EarlyStopping(monitor='val_loss',
                                    patience=training_params["early_stopping_patience"])
     model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
@@ -139,6 +145,10 @@ if __name__ == "__main__":
                                        monitor='val_loss',
                                        mode='min',
                                        save_top_k=1)
+
+    lr_monitor = LearningRateMonitor(logging_interval='step')
+    accumulation_scheduler = GradientAccumulationScheduler(scheduling={0: 1, 10: 2})
+    swa = StochasticWeightAveraging(swa_epoch_start=0.6,swa_lrs=4e-6)
 
     # Logger
     log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
@@ -149,7 +159,7 @@ if __name__ == "__main__":
     # Trainer
     trainer = Trainer(max_time=timedelta(hours=training_params["max_time_hours"]),
                       accelerator="auto",
-                      callbacks=[early_stopping, model_checkpoint],
+                      callbacks=[early_stopping, model_checkpoint, lr_monitor, accumulation_scheduler, swa],
                       logger=logger,
                       log_every_n_steps=training_params["log_every_n_steps"],
                       precision=training_params["presicion"])
