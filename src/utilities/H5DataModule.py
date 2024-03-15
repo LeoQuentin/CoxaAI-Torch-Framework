@@ -149,7 +149,7 @@ class H5DataModule(pl.LightningDataModule):
         return DataLoader(self.train_dataset,
                           batch_size=self.batch_size,
                           shuffle=True,
-                          num_workers=4)
+                          num_workers=16)
 
     def val_dataloader(self):
         """
@@ -162,7 +162,7 @@ class H5DataModule(pl.LightningDataModule):
         """
         return DataLoader(self.val_dataset,
                           batch_size=self.batch_size,
-                          num_workers=4)
+                          num_workers=8)
 
     def test_dataloader(self):
         """
