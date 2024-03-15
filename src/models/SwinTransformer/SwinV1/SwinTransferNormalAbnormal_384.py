@@ -58,11 +58,12 @@ if __name__ == "__main__":
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
+            optimizer = torch.optim.AdamW(self.parameters(), lr=5e-6, weight_decay=1e-2)
             lr_scheduler = {'scheduler': ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=7, verbose=True),
                     'monitor': 'val_loss',  # Specify the metric you want to monitor
                     'interval': 'epoch',
                     'frequency': 1}
-            return [torch.optim.AdamW(self.parameters(), lr=5e-6, weight_decay=1e-2)], [lr_scheduler]
+            return [optimizer], [lr_scheduler]
 
     # --------------------- Preprocessing ---------------------
 
