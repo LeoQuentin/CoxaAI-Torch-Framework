@@ -30,8 +30,8 @@ if __name__ == "__main__":
     config = SwinConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
-    config.hidden_dropout_prob = 0.1
-    config.attention_probs_dropout_prob = 0.1
+    config.hidden_dropout_prob = 0.3
+    config.attention_probs_dropout_prob = 0.3
 
     # Other parameters
     size = (384, 384)  # 40x40 patches
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "val_folds": [4],
         "test_folds": [4],
         "log_every_n_steps": 25,
-        "presicion": "32-true"
+        "presicion": 16
     }
 
     # --------------------- Model ---------------------
