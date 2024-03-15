@@ -38,11 +38,11 @@ if __name__ == "__main__":
 
     # Training parameters
     training_params = {
-        "batch_size": 8,
+        "batch_size": 12,
         "early_stopping_patience": 16,
         "max_time_hours": 12,
-        "train_folds": [0, 1, 2],
-        "val_folds": [3],
+        "train_folds": [0, 1, 2, 3],
+        "val_folds": [4],
         "test_folds": [4],
         "log_every_n_steps": 25,
         "presicion": "32-true"
