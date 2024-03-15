@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --ntasks-per-node=16          # 16 cores (CPU)
+#SBATCH --ntasks-per-node=24          # 16 cores (CPU)
 #SBATCH --nodes=1            # Use 1 node
 #SBATCH --job-name=CoxaAI-ViT  # Name of job
 #SBATCH --partition=gpu      # Use GPU partition
