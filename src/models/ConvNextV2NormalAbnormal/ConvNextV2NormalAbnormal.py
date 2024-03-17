@@ -27,14 +27,14 @@ from src.augmentation.autoaugment import ImageNetPolicy # noqa
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    model_id = "microsoft/resnet-50"
+    model_id = "facebook/convnextv2-tiny-22k-384"
     config = ConvNextV2Config.from_pretrained(model_id)
 
     # Set config hyperparameters
     # ---------------------
 
     # Other parameters
-    size = (800, 800)  # 40x40 patches
+    size = (384, 384)
 
     # Training parameters
     training_params = {
@@ -53,13 +53,12 @@ if __name__ == "__main__":
     class Resnet50(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ResNetForImageClassification.from_pretrained(model_id, config=config)
-            model.classifier = nn.Sequential(nn.Flatten(),
-                                             nn.Linear(config.hidden_sizes[-1], 2))
+            model = ConvNextV2ForImageClassification.from_pretrained(model_id, config=config)
+            model.classifier = nn.Linear(config.hidden_sizes[-1], 2)
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
-            return torch.optim.Adam(self.parameters(), lr=5e-6)
+            return torch.optim.Adam(self.parameters(), lr=3e-4)
 
     # --------------------- Preprocessing ---------------------
 
