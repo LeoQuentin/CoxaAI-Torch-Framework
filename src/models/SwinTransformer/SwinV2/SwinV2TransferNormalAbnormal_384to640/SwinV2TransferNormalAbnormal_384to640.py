@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "val_folds": [4],
         "test_folds": [4],
         "log_every_n_steps": 25,
-        "presicion": 16
+        "precision": 16
     }
 
     # --------------------- Model ---------------------

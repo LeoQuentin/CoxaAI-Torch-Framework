@@ -45,16 +45,21 @@ if __name__ == "__main__":
         "val_folds": [4],
         "test_folds": [4],
         "log_every_n_steps": 25,
-        "presicion": 16
+        "precision": 16
     }
 
     # --------------------- Model ---------------------
 
-    class Resnet50(BaseNormalAbnormal):
+    class ConvNextV2NormalAbnormal(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ConvNextV2ForImageClassification.from_pretrained(model_id, config=config)
-            model.classifier = nn.Linear(config.hidden_sizes[-1], 2)
+            model = ConvNextV2ForImageClassification(config)
+            model.classifier = nn.Sequential(
+                nn.Linear(config.hidden_sizes[-1], 512),  # First layer to 512 hidden nodes
+                nn.ReLU(),  # ReLU activation function
+                nn.Linear(512, 2)  # Second layer to the final output
+            )
+
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
@@ -126,7 +131,7 @@ if __name__ == "__main__":
 
     # ------------------ Instanciate model ------------------
 
-    model = Resnet50()
+    model = ConvNextV2NormalAbnormal()
 
     # log training parameters
     model.save_hyperparameters(training_params)
