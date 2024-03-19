@@ -161,7 +161,7 @@ if __name__ == "__main__":
                       callbacks=[early_stopping, model_checkpoint],
                       logger=logger,
                       log_every_n_steps=training_params["log_every_n_steps"],
-                      precision=training_params["presicion"])
+                      precision=training_params["precision"])
 
     # Training
     trainer.fit(model, dm)
