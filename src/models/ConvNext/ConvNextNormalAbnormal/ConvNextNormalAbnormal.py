@@ -57,9 +57,9 @@ if __name__ == "__main__":
             # Initialize the ConvNextV2 model with specific configuration
             model = ConvNextForImageClassification(config)
             model.classifier = nn.Sequential(
-                nn.Linear(config.hidden_sizes[-1], 512),  # First layer to 512 hidden nodes
+                nn.Linear(config.hidden_sizes[-1], 64),  # First layer to 512 hidden nodes
                 nn.ReLU(),  # ReLU activation function
-                nn.Linear(512, 2)  # Second layer to the final output
+                nn.Linear(64, 2)  # Second layer to the final output
             )
 
             super().__init__(model=model, *args, **kwargs)
