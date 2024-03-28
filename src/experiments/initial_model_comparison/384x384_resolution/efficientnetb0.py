@@ -1,5 +1,4 @@
 import torch # noqa
-import torch.nn as nn
 from torchvision import transforms
 import os
 from datetime import timedelta
@@ -7,18 +6,18 @@ import sys
 import dotenv
 
 # huggingface model
-from transformers import AutoImageProcessor, ConvNextForImageClassification, ConvNextConfig
+from transformers import AutoConfig, AutoModelForImageClassification, AutoImageProcessor
 # Lightning
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 dotenv.load_dotenv()
 project_root = os.getenv('PROJECT_ROOT')
 if project_root:
     sys.path.append(project_root)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
-from src.models.SimpleTrainingLoop import train_model # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
 from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
@@ -27,49 +26,53 @@ from src.augmentation.autoaugment import ImageNetPolicy # noqa
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    model_id = "alexliao/convnext-small-384-22k-1k"
-    config = ConvNextConfig.from_pretrained(model_id)
+    model_id = "google/efficientnet-b0"
+    config = AutoConfig.from_pretrained(model_id)
 
-    config.hidden_dropout_prob = 0.2
-
-    # Set config hyperparameters
-    # ---------------------
-
-    # Other parameters
+    # Size
     size = (384, 384)
+    config.image_size = size
+
+    # Channels
+    config.num_channels = 1
 
     # Training parameters
     training_params = {
-        "batch_size": 16,
-        "early_stopping_patience": 20,
+        "batch_size": 12,
+        "early_stopping_patience": 40,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2, 3],
         "val_folds": [4],
         "test_folds": [4],
         "log_every_n_steps": 25,
-        "precision": 16
+        "presicion": 16
     }
 
     # --------------------- Model ---------------------
 
-    class ConvNextNormalAbnormal(BaseNormalAbnormal):
+    class EfficientNetB0_384(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ConvNextForImageClassification(config)
-            model.classifier = nn.Sequential(
-                nn.Linear(config.hidden_sizes[-1], 64),  # First layer to 512 hidden nodes
-                nn.ReLU(),  # ReLU activation function
-                nn.Linear(64, 2)  # Second layer to the final output
-            )
-
+            model = AutoModelForImageClassification(config=config)
+            model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
         def configure_optimizers(self):
-            return torch.optim.Adam(self.parameters(), lr=3e-4)
+            optimizer = torch.optim.AdamW(self.parameters(), lr=5e-4, weight_decay=1e-2)
+            lr_scheduler = {'scheduler': ReduceLROnPlateau(optimizer,
+                                                           mode='min',
+                                                           factor=0.2,
+                                                           patience=7,
+                                                           verbose=True),
+                            'monitor': 'val_loss',  # Specify the metric you want to monitor
+                            'interval': 'epoch',
+                            'frequency': 1}
+            return [optimizer], [lr_scheduler]
 
     # --------------------- Preprocessing ---------------------
 
     feature_extractor = AutoImageProcessor.from_pretrained(model_id)
+    feature_extractor.size = size
 
     def train_preprocess(image):
         # image is a numpy array in the shape (H, W, C)
@@ -89,8 +92,7 @@ if __name__ == "__main__":
         data = feature_extractor(images=image,
                                  return_tensors="pt",
                                  input_data_format="channels_first",
-                                 do_rescale=False,  # false since transforms.ToTensor does it
-                                 do_resize=False)
+                                 do_rescale=False)  # false since transforms.ToTensor does it
         # Sometimes the feature extractor adds a batch dim
         image = data["pixel_values"]
         if len(image.size()) == 4:
@@ -111,8 +113,7 @@ if __name__ == "__main__":
         data = feature_extractor(images=image,
                                  return_tensors="pt",
                                  input_data_format="channels_first",
-                                 do_rescale=False,
-                                 do_resize=False)
+                                 do_rescale=False)
         image = data["pixel_values"]
         if len(image.size()) == 4:
             image = image.squeeze(0)
@@ -133,7 +134,7 @@ if __name__ == "__main__":
 
     # ------------------ Instanciate model ------------------
 
-    model = ConvNextNormalAbnormal()
+    model = EfficientNetB0_384()
 
     # log training parameters
     model.save_hyperparameters(training_params)
@@ -141,6 +142,7 @@ if __name__ == "__main__":
 
     # --------------------- Train ---------------------
 
+    # callbacks
     early_stopping = EarlyStopping(monitor='val_loss',
                                    patience=training_params["early_stopping_patience"])
     model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
@@ -158,10 +160,11 @@ if __name__ == "__main__":
     # Trainer
     trainer = Trainer(max_time=timedelta(hours=training_params["max_time_hours"]),
                       accelerator="auto",
-                      callbacks=[early_stopping, model_checkpoint],
+                      callbacks=[early_stopping,
+                                 model_checkpoint],
                       logger=logger,
                       log_every_n_steps=training_params["log_every_n_steps"],
-                      precision=training_params["precision"])
+                      precision=training_params["presicion"])
 
     # Training
     trainer.fit(model, dm)
