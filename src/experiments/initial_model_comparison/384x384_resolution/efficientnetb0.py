@@ -53,7 +53,7 @@ if __name__ == "__main__":
     class EfficientNetB0_384(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = AutoModelForImageClassification(config=config)
+            model = AutoModelForImageClassification.from_config(config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
