@@ -32,9 +32,8 @@ if __name__ == "__main__":
 
     # Training parameters
     training_params = {
-        "model_id": efficientnet_versions,
         "batch_size": 32,
-        "early_stopping_patience": 5,
+        "early_stopping_patience": 25,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
         "val_folds": [3],
