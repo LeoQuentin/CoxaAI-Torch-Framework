@@ -98,6 +98,7 @@ class H5DataModule(pl.LightningDataModule):
                  test_transform=None,
                  target_var='target'):
         super().__init__()
+        self.save_hyperparameters()
         self.data_file = data_file
         self.batch_size = batch_size
         self.train_folds = train_folds if train_folds is not None else [0, 1, 2]
