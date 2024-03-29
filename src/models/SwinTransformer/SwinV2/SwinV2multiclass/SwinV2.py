@@ -126,7 +126,7 @@ if __name__ == "__main__":
                       train_folds=training_params["train_folds"],
                       val_folds=training_params["val_folds"],
                       test_folds=training_params["test_folds"],
-                      target_var='Diagnosis',
+                      target_var='diagnosis',
                       train_transform=train_preprocess,
                       val_transform=val_test_preprocess,
                       test_transform=val_test_preprocess
