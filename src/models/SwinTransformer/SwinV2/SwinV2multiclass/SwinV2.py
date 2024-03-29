@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "val_folds": [4],
         "test_folds": [4],
         "log_every_n_steps": 25,
-        "precision": 16
+        "precision": "16-mixed"
     }
 
     # --------------------- Model ---------------------
@@ -152,8 +152,6 @@ if __name__ == "__main__":
                                        save_top_k=1)
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
-    accumulation_scheduler = GradientAccumulationScheduler(scheduling={0: 1, 10: 2})
-    swa = StochasticWeightAveraging(swa_epoch_start=0.6, swa_lrs=4e-6)
 
     # Logger
     log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
@@ -164,7 +162,7 @@ if __name__ == "__main__":
     # Trainer
     trainer = Trainer(max_time=timedelta(hours=training_params["max_time_hours"]),
                       accelerator="auto",
-                      callbacks=[early_stopping, model_checkpoint, lr_monitor, accumulation_scheduler, swa],  # noqa
+                      callbacks=[early_stopping, model_checkpoint, lr_monitor],  # noqa
                       logger=logger,
                       log_every_n_steps=training_params["log_every_n_steps"],
                       precision=training_params["precision"])
