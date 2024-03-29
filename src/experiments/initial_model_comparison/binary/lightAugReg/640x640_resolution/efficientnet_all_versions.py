@@ -22,8 +22,8 @@ from src.utilities.H5DataModule import H5DataModule # noqa
 from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
-log_dir = os.path.join(project_root, "src/experiments/logs")
-checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
+log_dir = os.path.join(project_root, "src/experiments/initial_model_comparison/binary/lightAugReg/logs") # noqa
+checkpoint = os.path.join(project_root, "src/experiments/initial_model_comparison/binary/lightAugReg/modelcheckpoints") # noqa
 
 # --------------- Everything that should be changed between experiments ---------------
 
