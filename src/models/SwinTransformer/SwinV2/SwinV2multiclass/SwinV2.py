@@ -55,7 +55,7 @@ if __name__ == "__main__":
             # Initialize the ConvNextV2 model with specific configuration
             model = Swinv2ForImageClassification.from_pretrained(model_id, config=config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 5)
-            super().__init__(model=model, *args, **kwargs)
+            super().__init__(model=model, num_classes=5, *args, **kwargs)
 
         def configure_optimizers(self):
             optimizer = torch.optim.AdamW(self.parameters(), lr=5e-6, weight_decay=1e-2)
