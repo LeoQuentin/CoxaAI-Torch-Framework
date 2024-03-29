@@ -66,8 +66,6 @@ def val_test_preprocess(image):
         image = image.squeeze(0)
     return image
 
-# --------------- Everything that should be changed between experiments ---------------
-
 
 # --------------------- Model ---------------------
 # because pytorch is dumb we have to do __init__:
@@ -147,7 +145,6 @@ if __name__ == "__main__":
         # callbacks
         early_stopping = EarlyStopping(monitor='val_loss',
                                        patience=training_params["early_stopping_patience"])
-        checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
         model_checkpoint = ModelCheckpoint(dirpath=checkpoint,
                                            filename=f'{model_id}_{log_checkpoint_suffix}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
                                            monitor='val_loss',
@@ -155,7 +152,6 @@ if __name__ == "__main__":
                                            save_top_k=1)
 
         # Logger
-        log_dir = checkpoint = os.path.join(project_root, "src/experiments/logs")
         logger = CSVLogger(save_dir=log_dir,
                            name=f"{model_id}_{log_checkpoint_suffix}",
                            flush_logs_every_n_steps=training_params["log_every_n_steps"])
