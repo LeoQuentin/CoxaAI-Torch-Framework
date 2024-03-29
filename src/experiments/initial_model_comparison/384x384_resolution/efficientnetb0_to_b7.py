@@ -135,7 +135,7 @@ if __name__ == "__main__":
                                        patience=training_params["early_stopping_patience"])
         checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
         model_checkpoint = ModelCheckpoint(dirpath=checkpoint,
-                                           filename=f'{model.model_id}_384_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                           filename=f'{model_id}_384_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
                                            monitor='val_loss',
                                            mode='min',
                                            save_top_k=1)
