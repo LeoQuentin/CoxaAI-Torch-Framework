@@ -84,8 +84,8 @@ if __name__ == "__main__":
         # Training parameters
         training_params = {
             "model_id": model_id,
-            "batch_size": (16 if models in ["efficientnet-b0", "efficientnet-b1",
-                                            "efficientnet-b2", "efficientnet-b3"] else 8),
+            "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
+                                            "efficientnet-b2", "efficientnet-b3"] else 16),
             "early_stopping_patience": 12,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                                        patience=training_params["early_stopping_patience"])
         checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
         model_checkpoint = ModelCheckpoint(dirpath=checkpoint,
-                                           filename=f'{model_id}_binary_lightAugReg_384_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                           filename=f'{model_id}_{log_checkpoint_suffix}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
                                            monitor='val_loss',
                                            mode='min',
                                            save_top_k=1)
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         # Logger
         log_dir = checkpoint = os.path.join(project_root, "src/experiments/logs")
         logger = CSVLogger(save_dir=log_dir,
-                           name=f"{model_id}_binary_lightAugReg_384",
+                           name=f"{model_id}_{log_checkpoint_suffix}",
                            flush_logs_every_n_steps=training_params["log_every_n_steps"])
 
         # Trainer
