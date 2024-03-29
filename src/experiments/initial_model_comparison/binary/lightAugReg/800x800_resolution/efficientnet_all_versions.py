@@ -22,7 +22,54 @@ from src.utilities.H5DataModule import H5DataModule # noqa
 from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
 
+log_dir = os.path.join(project_root, "src/experiments/logs")
+checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
 
+# --------------- Everything that should be changed between experiments ---------------
+
+size = (800, 800)
+log_checkpoint_suffix = f"binary_lightAugReg_{size[0]}"
+
+
+def train_preprocess(image):
+    # image is a numpy array in the shape (H, W, C)
+    image = np_image_to_PIL(image)  # convert to PIL image
+
+    # Preprocess the image
+    transform_pipeline = transforms.Compose([
+        transforms.Resize(size),
+        transforms.RandomRotation(10),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor()
+    ])
+    image = transform_pipeline(image)
+
+    # Remove the batch dimension if it exists
+    if len(image.size()) == 4:
+        image = image.squeeze(0)
+    return image
+
+
+def val_test_preprocess(image):
+    # basically same as train_preprocess but without the augmentations
+    image = np_image_to_PIL(image)  # convert to PIL image
+
+    transform_pipeline = transforms.Compose([
+        transforms.Resize(size),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor()
+    ])
+    image = transform_pipeline(image)
+
+    if len(image.size()) == 4:
+        image = image.squeeze(0)
+    return image
+
+# --------------- Everything that should be changed between experiments ---------------
+
+
+# --------------------- Model ---------------------
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
@@ -32,21 +79,23 @@ if __name__ == "__main__":
         config = AutoConfig.from_pretrained(model_id)
 
         # Size
-        size = (800, 800)
         config.image_size = size
 
         # Training parameters
         training_params = {
             "model_id": model_id,
-            "batch_size": 32,
-            "early_stopping_patience": 15,
+            "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
+                                            "efficientnet-b2", "efficientnet-b3"] else 16),
+            "early_stopping_patience": 12,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
             "test_folds": [4],
             "log_every_n_steps": 10,
             "presicion": "16-mixed",
-            "size": config.image_size
+            "size": config.image_size,
+            "lr_scheduler_factor": 0.2,
+            "lr_scheduler_patience": 5
         }
 
         # Channels
@@ -55,7 +104,7 @@ if __name__ == "__main__":
 
         # --------------------- Model ---------------------
 
-        class EfficientNet_800(BaseNormalAbnormal):
+        class EfficientNet_384(BaseNormalAbnormal):
             def __init__(self, *args, **kwargs):
                 # Initialize the ConvNextV2 model with specific configuration
                 model = AutoModelForImageClassification.from_config(config)
@@ -69,8 +118,8 @@ if __name__ == "__main__":
                 optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
                 lr_scheduler = {'scheduler': ReduceLROnPlateau(optimizer,
                                                                mode='min',
-                                                               factor=0.2,
-                                                               patience=5),
+                                                               factor=training_params["lr_scheduler_factor"],  # noqa
+                                                               patience=training_params["lr_scheduler_patience"]),  # noqa
                                 'monitor': 'val_loss',  # Specify the metric you want to monitor
                                 'interval': 'epoch',
                                 'frequency': 1}
@@ -78,43 +127,7 @@ if __name__ == "__main__":
 
         # ------------------ Instanciate model ------------------
 
-        model = EfficientNet_800()
-
-        # --------------------- Preprocessing ---------------------
-
-        def train_preprocess(image):
-            # image is a numpy array in the shape (H, W, C)
-            image = np_image_to_PIL(image)  # convert to PIL image
-
-            # Preprocess the image
-            transform_pipeline = transforms.Compose([
-                transforms.Resize(size),
-                transforms.RandomRotation(10),
-                transforms.Grayscale(num_output_channels=1),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor()
-            ])
-            image = transform_pipeline(image)
-
-            # Extract features using the feature extractor from Huggingface
-            if len(image.size()) == 4:
-                image = image.squeeze(0)
-            return image
-
-        def val_test_preprocess(image):
-            # basically same as train_preprocess but without the augmentations
-            image = np_image_to_PIL(image)  # convert to PIL image
-
-            transform_pipeline = transforms.Compose([
-                transforms.Resize(size),
-                transforms.Grayscale(num_output_channels=1),
-                transforms.ToTensor()
-            ])
-            image = transform_pipeline(image)
-
-            if len(image.size()) == 4:
-                image = image.squeeze(0)
-            return image
+        model = EfficientNet_384()
 
         # --------------------- DataModule ---------------------
 
@@ -136,7 +149,7 @@ if __name__ == "__main__":
                                        patience=training_params["early_stopping_patience"])
         checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
         model_checkpoint = ModelCheckpoint(dirpath=checkpoint,
-                                           filename=f'{model_id}_binary_lightAugReg_800_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                           filename=f'{model_id}_binary_lightAugReg_384_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
                                            monitor='val_loss',
                                            mode='min',
                                            save_top_k=1)
@@ -144,7 +157,7 @@ if __name__ == "__main__":
         # Logger
         log_dir = checkpoint = os.path.join(project_root, "src/experiments/logs")
         logger = CSVLogger(save_dir=log_dir,
-                           name=f"{model_id}_binary_lightAugReg_800",
+                           name=f"{model_id}_binary_lightAugReg_384",
                            flush_logs_every_n_steps=training_params["log_every_n_steps"])
 
         # Trainer

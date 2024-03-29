@@ -25,9 +25,51 @@ from src.augmentation.autoaugment import ImageNetPolicy # noqa
 log_dir = os.path.join(project_root, "src/experiments/logs")
 checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
 
-log_checkpoint_suffix = "binary_lightAugReg_640"
+# --------------- Everything that should be changed between experiments ---------------
+
+size = (384, 384)
+log_checkpoint_suffix = f"binary_lightAugReg_{size[0]}"
 
 
+def train_preprocess(image):
+    # image is a numpy array in the shape (H, W, C)
+    image = np_image_to_PIL(image)  # convert to PIL image
+
+    # Preprocess the image
+    transform_pipeline = transforms.Compose([
+        transforms.Resize(size),
+        transforms.RandomRotation(10),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor()
+    ])
+    image = transform_pipeline(image)
+
+    # Remove the batch dimension if it exists
+    if len(image.size()) == 4:
+        image = image.squeeze(0)
+    return image
+
+
+def val_test_preprocess(image):
+    # basically same as train_preprocess but without the augmentations
+    image = np_image_to_PIL(image)  # convert to PIL image
+
+    transform_pipeline = transforms.Compose([
+        transforms.Resize(size),
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor()
+    ])
+    image = transform_pipeline(image)
+
+    if len(image.size()) == 4:
+        image = image.squeeze(0)
+    return image
+
+# --------------- Everything that should be changed between experiments ---------------
+
+
+# --------------------- Model ---------------------
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
@@ -37,7 +79,6 @@ if __name__ == "__main__":
         config = AutoConfig.from_pretrained(model_id)
 
         # Size
-        size = (384, 384)
         config.image_size = size
 
         # Training parameters
@@ -45,7 +86,7 @@ if __name__ == "__main__":
             "model_id": model_id,
             "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
                                             "efficientnet-b2", "efficientnet-b3"] else 16),
-            "early_stopping_patience": 10,
+            "early_stopping_patience": 12,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
@@ -87,42 +128,6 @@ if __name__ == "__main__":
         # ------------------ Instanciate model ------------------
 
         model = EfficientNet_384()
-
-        # --------------------- Preprocessing ---------------------
-
-        def train_preprocess(image):
-            # image is a numpy array in the shape (H, W, C)
-            image = np_image_to_PIL(image)  # convert to PIL image
-
-            # Preprocess the image
-            transform_pipeline = transforms.Compose([
-                transforms.Resize(size),
-                transforms.RandomRotation(10),
-                transforms.Grayscale(num_output_channels=1),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor()
-            ])
-            image = transform_pipeline(image)
-
-            # Remove the batch dimension if it exists
-            if len(image.size()) == 4:
-                image = image.squeeze(0)
-            return image
-
-        def val_test_preprocess(image):
-            # basically same as train_preprocess but without the augmentations
-            image = np_image_to_PIL(image)  # convert to PIL image
-
-            transform_pipeline = transforms.Compose([
-                transforms.Resize(size),
-                transforms.Grayscale(num_output_channels=1),
-                transforms.ToTensor()
-            ])
-            image = transform_pipeline(image)
-
-            if len(image.size()) == 4:
-                image = image.squeeze(0)
-            return image
 
         # --------------------- DataModule ---------------------
 
