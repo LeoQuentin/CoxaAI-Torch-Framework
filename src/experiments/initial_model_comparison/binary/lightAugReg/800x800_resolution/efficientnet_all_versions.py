@@ -84,8 +84,8 @@ if __name__ == "__main__":
         # Training parameters
         training_params = {
             "model_id": model_id,
-            "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
-                                            "efficientnet-b2", "efficientnet-b3"] else 16),
+            "batch_size": (16 if models in ["efficientnet-b0", "efficientnet-b1",
+                                            "efficientnet-b2", "efficientnet-b3"] else 8),
             "early_stopping_patience": 12,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
