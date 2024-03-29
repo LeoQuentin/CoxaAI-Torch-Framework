@@ -17,7 +17,7 @@ dotenv.load_dotenv()
 project_root = os.getenv('PROJECT_ROOT')
 if project_root:
     sys.path.append(project_root)
-from src.models.BaseNormalAbnormal import BaseNormalAbnormal # noqa
+from src.models.BaseMultiClass import BaseMulticlass # noqa
 from src.utilities.H5DataModule import H5DataModule # noqa
 from src.utilities.np_image_to_PIL import np_image_to_PIL # noqa
 from src.augmentation.autoaugment import ImageNetPolicy # noqa
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     # --------------------- Model ---------------------
 
-    class SwinV2MultiClass640(BaseNormalAbnormal):
+    class SwinV2MultiClass640(BaseMulticlass):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
             model = Swinv2ForImageClassification.from_pretrained(model_id, config=config)
