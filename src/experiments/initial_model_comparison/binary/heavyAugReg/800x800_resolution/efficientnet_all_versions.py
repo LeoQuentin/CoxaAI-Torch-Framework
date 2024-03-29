@@ -32,14 +32,14 @@ if __name__ == "__main__":
         config = AutoConfig.from_pretrained(model_id)
 
         # Size
-        size = (384, 384)
+        size = (800, 800)
         config.image_size = size
 
         # Training parameters
         training_params = {
             "model_id": model_id,
             "batch_size": 32,
-            "early_stopping_patience": 25,
+            "early_stopping_patience": 15,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
         # --------------------- Model ---------------------
 
-        class EfficientNet_384(BaseNormalAbnormal):
+        class EfficientNet_800(BaseNormalAbnormal):
             def __init__(self, *args, **kwargs):
                 # Initialize the ConvNextV2 model with specific configuration
                 model = AutoModelForImageClassification.from_config(config)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                 lr_scheduler = {'scheduler': ReduceLROnPlateau(optimizer,
                                                                mode='min',
                                                                factor=0.2,
-                                                               patience=7),
+                                                               patience=5),
                                 'monitor': 'val_loss',  # Specify the metric you want to monitor
                                 'interval': 'epoch',
                                 'frequency': 1}
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
         # ------------------ Instanciate model ------------------
 
-        model = EfficientNet_384()
+        model = EfficientNet_800()
 
         # --------------------- Preprocessing ---------------------
 
@@ -89,6 +89,7 @@ if __name__ == "__main__":
             # Preprocess the image
             transform_pipeline = transforms.Compose([
                 transforms.Resize(size),
+                transforms.RandomRotation(10),
                 transforms.Grayscale(num_output_channels=1),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor()
@@ -135,7 +136,7 @@ if __name__ == "__main__":
                                        patience=training_params["early_stopping_patience"])
         checkpoint = os.path.join(project_root, "src/experiments/modelcheckpoints")
         model_checkpoint = ModelCheckpoint(dirpath=checkpoint,
-                                           filename=f'{model_id}_384_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                           filename=f'{model_id}_binary_lightAugReg_800_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
                                            monitor='val_loss',
                                            mode='min',
                                            save_top_k=1)
@@ -143,7 +144,7 @@ if __name__ == "__main__":
         # Logger
         log_dir = checkpoint = os.path.join(project_root, "src/experiments/logs")
         logger = CSVLogger(save_dir=log_dir,
-                           name=f"{model_id}_384",
+                           name=f"{model_id}_binary_lightAugReg_800",
                            flush_logs_every_n_steps=training_params["log_every_n_steps"])
 
         # Trainer
