@@ -34,7 +34,7 @@ if __name__ == "__main__":
     config.attention_probs_dropout_prob = 0.3
 
     # Other parameters
-    size = (640, 640)  # 40x40 patches
+    size = (384, 384)  # 40x40 patches
 
     # Training parameters
     training_params = {
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     # --------------------- Model ---------------------
 
-    class SwinV2MultiClass640(BaseMulticlass):
+    class SwinV2MultiClass384(BaseMulticlass):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
             model = Swinv2ForImageClassification.from_pretrained(model_id, config=config)
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
     # ------------------ Instanciate model ------------------
 
-    model = SwinV2MultiClass640()
+    model = SwinV2MultiClass384()
 
     # log training parameters
     model.save_hyperparameters(training_params)
