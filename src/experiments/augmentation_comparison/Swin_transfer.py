@@ -25,7 +25,7 @@ from src.augmentation.autoaugment import ImageNetPolicy # noqa
 log_dir = os.path.join(project_root, "src/experiments/augmentation_comparison/logs") # noqa
 checkpoint = os.path.join(project_root, "src/experiments/augmentation_comparison/modelcheckpoints") # noqa
 
-size = (800, 800)
+size = (640, 640)
 
 
 # --------------- Preprocessing ---------------
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # Training parameters
     training_params = {
         "model_id": model_id,
-        "batch_size": 4,
+        "batch_size": 8,
         "early_stopping_patience": 12,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
