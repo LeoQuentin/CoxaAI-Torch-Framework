@@ -71,7 +71,7 @@ if __name__ == "__main__":
                               val_folds=[],
                               test_folds=test_folds,
                               target_var='target',
-                              train_transform=None,
+                              train_transform=lambda x: val_test_preprocess(x, (image_size, image_size)),  # noqa
                               val_transform=lambda x: val_test_preprocess(x, (image_size, image_size)),  # noqa
                               test_transform=lambda x: val_test_preprocess(x, (image_size, image_size)))  # noqa
 
