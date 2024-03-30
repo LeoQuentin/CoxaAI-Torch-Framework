@@ -163,7 +163,8 @@ if __name__ == "__main__":
                                      LearningRateMonitor(logging_interval='step')],
                           logger=logger,
                           log_every_n_steps=training_params["log_every_n_steps"],
-                          precision=training_params["presicion"])
+                          precision=training_params["presicion"],
+                          max_epochs=2)
 
         # Training
         trainer.fit(model, dm)
