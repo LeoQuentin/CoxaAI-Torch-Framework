@@ -42,6 +42,10 @@ def val_test_preprocess(image, size):
     return image
 
 
+def train_preprocess(image, size):
+    return val_test_preprocess(image, size)
+
+
 class EfficientNet(BaseNormalAbnormal):
     def __init__(self, config, *args, **kwargs):
         model = AutoModelForImageClassification.from_config(config)
