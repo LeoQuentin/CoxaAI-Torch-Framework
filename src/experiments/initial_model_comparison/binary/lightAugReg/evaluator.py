@@ -49,7 +49,7 @@ def train_preprocess(image, size):
 class EfficientNet(BaseNormalAbnormal):
     def __init__(self, *args, **kwargs):
         # Initialize the ConvNextV2 model with specific configuration
-        model = AutoModelForImageClassification.from_config(config)
+        self.model = AutoModelForImageClassification.from_pretrained("google/efficientnet-b0")
         model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
         super().__init__(model=model, *args, **kwargs)
 
@@ -78,7 +78,8 @@ if __name__ == "__main__":
             image_size = int(checkpoint_file.split("_")[3])
 
             checkpoint_path = os.path.join(checkpoint_dir, checkpoint_file)
-            model = EfficientNet.load_from_checkpoint(checkpoint_path)
+
+            checkpoint = torch.load(checkpoint_path)
 
             dm = H5DataModule(os.getenv("DATA_FILE"),
                               batch_size=8,
@@ -91,7 +92,7 @@ if __name__ == "__main__":
                               test_transform=lambda x: val_test_preprocess(x, (image_size, image_size)))  # noqa
 
             trainer = Trainer(accelerator="auto", logger=logger)
-            test_loss = trainer.test(model, dm)
+            test_loss = trainer.test(checkpoint, dm)
 
             print(f"Model: {model_name}, Image Size: {image_size}")
             print(f"Test Results: {test_loss}")
