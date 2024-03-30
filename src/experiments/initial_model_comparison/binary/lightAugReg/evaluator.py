@@ -56,7 +56,7 @@ if __name__ == "__main__":
     for checkpoint_file in os.listdir(checkpoint_dir):
         if checkpoint_file.startswith("efficientnet-"):
             model_name = checkpoint_file.split("_")[0]
-            image_size = int(checkpoint_file.split("_")[-3])
+            image_size = int(checkpoint_file.split("_")[3])
 
             config = AutoConfig.from_pretrained(f"google/{model_name}")
             config.image_size = (image_size, image_size)
