@@ -82,7 +82,7 @@ if __name__ == "__main__":
         training_params = {
             "model_id": model_id,
             "batch_size": 8,
-            "early_stopping_patience": 25,
+            "early_stopping_patience": 15,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
