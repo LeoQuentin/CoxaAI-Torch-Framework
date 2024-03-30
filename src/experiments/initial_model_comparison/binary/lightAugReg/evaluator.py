@@ -77,12 +77,8 @@ if __name__ == "__main__":
             model_name = checkpoint_file.split("_")[0]
             image_size = int(checkpoint_file.split("_")[3])
 
-            config = AutoConfig.from_pretrained(f"google/{model_name}")
-            config.image_size = (image_size, image_size)
-            config.num_channels = 1
-
             checkpoint_path = os.path.join(checkpoint_dir, checkpoint_file)
-            model = EfficientNet.load_from_checkpoint(checkpoint_path, config=config)
+            model = EfficientNet.load_from_checkpoint(checkpoint_path)
 
             dm = H5DataModule(os.getenv("DATA_FILE"),
                               batch_size=8,
