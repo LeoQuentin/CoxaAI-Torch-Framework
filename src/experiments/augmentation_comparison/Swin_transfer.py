@@ -88,7 +88,7 @@ def no_augreg(image):
 
 
 if __name__ == "__main__":
-    model_id = "google/efficientnet-b5"
+    model_id = "microsoft/swinv2-base-patch4-window12to24-192to384-22kto1k-ft"
     config = AutoConfig.from_pretrained(model_id)
 
     # Size
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # Training parameters
     training_params = {
         "model_id": model_id,
-        "batch_size": 24,
+        "batch_size": 8,
         "early_stopping_patience": 12,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
@@ -116,10 +116,10 @@ if __name__ == "__main__":
 
     # --------------------- Model ---------------------
 
-    class EfficientNet_800(BaseNormalAbnormal):
+    class SwinV2Transfer(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = AutoModelForImageClassification.from_config(config)
+            model = AutoModelForImageClassification.from_pretrained(model_id, config=config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     for train_preprocess in [no_augreg, light_augreg, heavy_augreg]:
         # ------------------ Instantiate model ------------------
-        model = EfficientNet_800()
+        model = SwinV2Transfer()
 
         # --------------------- DataModule ---------------------
         dm = H5DataModule(os.getenv("DATA_FILE"),
