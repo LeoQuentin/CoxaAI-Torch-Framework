@@ -73,7 +73,7 @@ class BaseNormalAbnormal(pl.LightningModule):
         # Move metrics to device
         self.metrics_to_device()
 
-        loss = self.loss(logits, y)
+        loss = self.loss(logits, y.long())
 
         # Calculate and log loss and conf matrix
         self.log('test_loss', loss)
