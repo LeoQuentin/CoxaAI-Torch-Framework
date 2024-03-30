@@ -51,6 +51,7 @@ class EfficientNet(BaseNormalAbnormal):
 
 if __name__ == "__main__":
     test_folds = [4]
+    logger = CSVLogger(save_dir=log_dir, name="efficientNet_Test_Results")
 
     for checkpoint_file in os.listdir(checkpoint_dir):
         if checkpoint_file.startswith("efficientnet-"):
@@ -74,9 +75,9 @@ if __name__ == "__main__":
                               val_transform=lambda x: val_test_preprocess(x, (image_size, image_size)),  # noqa
                               test_transform=lambda x: val_test_preprocess(x, (image_size, image_size)))  # noqa
 
-            trainer = Trainer(accelerator="auto")
-            test_results = trainer.test(model, dm)
+            trainer = Trainer(accelerator="auto", logger=logger)
+            test_loss = trainer.test(model, dm)
 
             print(f"Model: {model_name}, Image Size: {image_size}")
-            print(f"Test Results: {test_results}")
+            print(f"Test Results: {test_loss}")
             print()
