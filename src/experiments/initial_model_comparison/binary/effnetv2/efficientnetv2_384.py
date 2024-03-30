@@ -1,12 +1,10 @@
 import torch # noqa
-from torchvision import transforms
+from torchvision import transforms, models
 import os
 from datetime import timedelta
 import sys
 import dotenv
 
-# huggingface model
-from transformers import AutoConfig, AutoModelForImageClassification
 # Lightning
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, LearningRateMonitor
@@ -71,21 +69,11 @@ def val_test_preprocess(image):
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    for models in ["BobMcDear/efficientnetv2_small",
-                   "BobMcDear/efficientnetv2_medium",
-                   "BobMcDear/efficientnetv2_large",
-                   "BobMcDear/efficientnetv2_xlarge_in22ft1k",]:
-        model_id = f"{models}"
-        config = AutoConfig.from_pretrained(model_id)
-
-        # Size
-        config.image_size = size
-
+    for model_name in ["efficientnet_v2_s", "efficientnet_v2_m", "efficientnet_v2_l"]:
         # Training parameters
         training_params = {
-            "model_id": model_id,
-            "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
-                                            "efficientnet-b2", "efficientnet-b3"] else 16),
+            "model_id": model_name,
+            "batch_size": 32,
             "early_stopping_patience": 12,
             "max_time_hours": 12,
             "train_folds": [0, 1, 2],
@@ -93,22 +81,26 @@ if __name__ == "__main__":
             "test_folds": [4],
             "log_every_n_steps": 10,
             "presicion": "16-mixed",
-            "size": config.image_size,
+            "size": size,
             "lr_scheduler_factor": 0.2,
             "lr_scheduler_patience": 5
         }
-
-        # Channels
-        config.num_channels = 1
-        training_params["num_channels"] = config.num_channels
 
         # --------------------- Model ---------------------
 
         class NeuralNetwork(BaseNormalAbnormal):
             def __init__(self, *args, **kwargs):
-                # Initialize the ConvNextV2 model with specific configuration
-                model = AutoModelForImageClassification.from_config(config)
-                model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
+                # Initialize the EfficientNetV2 model
+                if model_name == "efficientnet_v2_s":
+                    model = models.efficientnet_v2_s(weights=None)
+                elif model_name == "efficientnet_v2_m":
+                    model = models.efficientnet_v2_m(weights=None)
+                elif model_name == "efficientnet_v2_l":
+                    model = models.efficientnet_v2_l(weights=None)
+                else:
+                    raise ValueError(f"Unsupported model: {model_name}")
+
+                model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 2)
                 super().__init__(model=model, *args, **kwargs)
 
                 # set learning rate
@@ -125,7 +117,7 @@ if __name__ == "__main__":
                                 'frequency': 1}
                 return [optimizer], [lr_scheduler]
 
-        # ------------------ Instanciate model ------------------
+        # ------------------ Instantiate model ------------------
 
         model = NeuralNetwork()
 
@@ -148,14 +140,14 @@ if __name__ == "__main__":
         early_stopping = EarlyStopping(monitor='val_loss',
                                        patience=training_params["early_stopping_patience"])
         model_checkpoint = ModelCheckpoint(dirpath=checkpoint,
-                                           filename=f'{model_id}_{log_checkpoint_suffix}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
+                                           filename=f'{model_name}_{log_checkpoint_suffix}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
                                            monitor='val_loss',
                                            mode='min',
                                            save_top_k=1)
 
         # Logger
         logger = CSVLogger(save_dir=log_dir,
-                           name=f"{model_id}_{log_checkpoint_suffix}",
+                           name=f"{model_name}_{log_checkpoint_suffix}",
                            flush_logs_every_n_steps=training_params["log_every_n_steps"])
 
         # Trainer
