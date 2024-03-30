@@ -47,10 +47,25 @@ def train_preprocess(image, size):
 
 
 class EfficientNet(BaseNormalAbnormal):
-    def __init__(self, config, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        # Initialize the ConvNextV2 model with specific configuration
         model = AutoModelForImageClassification.from_config(config)
         model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
         super().__init__(model=model, *args, **kwargs)
+
+        # set learning rate
+        self.learning_rate = 3e-4
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        lr_scheduler = {'scheduler': ReduceLROnPlateau(optimizer,
+                                                       mode='min',
+                                                       factor=0.3,  # noqa
+                                                       patience=5),  # noqa
+                        'monitor': 'val_loss',  # Specify the metric you want to monitor
+                        'interval': 'epoch',
+                        'frequency': 1}
+        return [optimizer], [lr_scheduler]
 
 
 if __name__ == "__main__":
