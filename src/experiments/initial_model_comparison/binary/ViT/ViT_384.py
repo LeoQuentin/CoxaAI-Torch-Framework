@@ -71,7 +71,7 @@ def val_test_preprocess(image):
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    for models in ["vit-base-patch16-224"]:
+    for models in ["google/vit-base-patch16-384"]:
         model_id = f"google/{models}"
         config = AutoConfig.from_pretrained(model_id)
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             "model_id": model_id,
             "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
                                             "efficientnet-b2", "efficientnet-b3"] else 10),
-            "early_stopping_patience": 12,
+            "early_stopping_patience": 25,
             "max_time_hours": 1,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
@@ -92,7 +92,7 @@ if __name__ == "__main__":
             "presicion": "16-mixed",
             "size": config.image_size,
             "lr_scheduler_factor": 0.2,
-            "lr_scheduler_patience": 5
+            "lr_scheduler_patience": 8
         }
 
         # Channels
@@ -163,8 +163,7 @@ if __name__ == "__main__":
                                      LearningRateMonitor(logging_interval='step')],
                           logger=logger,
                           log_every_n_steps=training_params["log_every_n_steps"],
-                          precision=training_params["presicion"],
-                          max_epochs=2)
+                          precision=training_params["presicion"])
 
         # Training
         trainer.fit(model, dm)
