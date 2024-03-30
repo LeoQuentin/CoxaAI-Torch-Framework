@@ -37,7 +37,7 @@ def train_preprocess(image):
     transform_pipeline = transforms.Compose([
         transforms.Resize(size),
         transforms.RandomRotation(10),
-        transforms.Grayscale(num_output_channels=1),
+        transforms.Grayscale(num_output_channels=3),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor()
     ])
@@ -55,7 +55,7 @@ def val_test_preprocess(image):
 
     transform_pipeline = transforms.Compose([
         transforms.Resize(size),
-        transforms.Grayscale(num_output_channels=1),
+        transforms.Grayscale(num_output_channels=3),
         transforms.ToTensor()
     ])
     image = transform_pipeline(image)
