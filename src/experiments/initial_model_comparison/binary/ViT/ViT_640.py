@@ -71,7 +71,7 @@ def val_test_preprocess(image):
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    for models in ["google/vit-base-patch16-384"]:
+    for models in ["vit-base-patch16-384"]:
         model_id = f"google/{models}"
         config = AutoConfig.from_pretrained(model_id)
 
