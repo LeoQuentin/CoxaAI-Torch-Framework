@@ -117,6 +117,10 @@ if __name__ == "__main__":
                                 'frequency': 1}
                 return [optimizer], [lr_scheduler]
 
+            def forward(self, x):
+                outputs = self.model(x)
+                return outputs
+
         # ------------------ Instantiate model ------------------
 
         model = NeuralNetwork()
