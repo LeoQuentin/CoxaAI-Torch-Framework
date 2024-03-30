@@ -83,7 +83,7 @@ if __name__ == "__main__":
             "model_id": model_id,
             "batch_size": 8,
             "early_stopping_patience": 25,
-            "max_time_hours": 1,
+            "max_time_hours": 12,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
             "test_folds": [4],

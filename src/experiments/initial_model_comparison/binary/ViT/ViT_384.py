@@ -84,7 +84,7 @@ if __name__ == "__main__":
             "batch_size": (32 if models in ["efficientnet-b0", "efficientnet-b1",
                                             "efficientnet-b2", "efficientnet-b3"] else 10),
             "early_stopping_patience": 25,
-            "max_time_hours": 1,
+            "max_time_hours": 12,
             "train_folds": [0, 1, 2],
             "val_folds": [3],
             "test_folds": [4],
