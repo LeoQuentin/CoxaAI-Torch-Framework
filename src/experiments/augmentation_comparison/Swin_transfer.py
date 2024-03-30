@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # Training parameters
     training_params = {
         "model_id": model_id,
-        "batch_size": 8,
+        "batch_size": 6,
         "early_stopping_patience": 12,
         "max_time_hours": 12,
         "train_folds": [0, 1, 2],
