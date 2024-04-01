@@ -43,7 +43,7 @@ checkpoint_dir = os.path.join(
     project_root, "src/experiments/transfer_comparison/Transfer/checkpoints"
 )
 
-experiment_file_name = "SwinTransfer"
+experiment_file_name = "SwinNoTransfer"
 
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     class NeuralNetwork(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = AutoModelForImageClassification.from_pretrained(model_id, config=config)
+            model = AutoModelForImageClassification.from_config(model_id)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 

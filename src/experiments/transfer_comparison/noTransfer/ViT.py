@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 
 # huggingface model
-from transformers import AutoConfig, AutoModelForImageClassification, AutoImageProcessor
+from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
 
 import os
 import sys
@@ -36,20 +36,20 @@ from src.utilities.np_image_to_PIL import np_image_to_PIL  # noqa
 from src.augmentation.autoaugment import ImageNetPolicy  # noqa
 
 log_dir = os.path.join(
-    project_root, "src/experiments/transfer_comparison/Transfer/logs"
+    project_root, "src/experiments/transfer_comparison/noTransfer/logs"
 )
 
 checkpoint_dir = os.path.join(
-    project_root, "src/experiments/transfer_comparison/Transfer/checkpoints"
+    project_root, "src/experiments/transfer_comparison/noTransfer/checkpoints"
 )
 
-experiment_file_name = "SwinTransfer"
+experiment_file_name = "ViTNoTransfer"
 
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    model_id = "microsoft/swinv2-base-patch4-window12to24-192to384-22kto1k-ft"
-    config = AutoConfig.from_pretrained(model_id)
+    model_id = "google/vit-base-patch16-384"
+    config = ViTConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
     config.hidden_dropout_prob = 0.3
@@ -77,12 +77,12 @@ if __name__ == "__main__":
     class NeuralNetwork(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = AutoModelForImageClassification.from_pretrained(model_id, config=config)
+            model = ViTForImageClassification.from_config(config=config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
             # set learning rate
-            self.learning_rate = 5e-6
+            self.learning_rate = 3e-4
 
         def configure_optimizers(self):
             optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -107,11 +107,11 @@ if __name__ == "__main__":
 
     # --------------------- Preprocessing ---------------------
 
-    feature_extractor = AutoImageProcessor.from_pretrained(model_id)
+    feature_extractor = ViTImageProcessor.from_pretrained(model_id)
     feature_extractor.size = size
 
     def train_preprocess(image):
-        image = train_augments(image, size=(800, 800))
+        image = train_augments(image, size=(640, 640))
 
         # Extract features using the feature extractor from Huggingface
         data = feature_extractor(
