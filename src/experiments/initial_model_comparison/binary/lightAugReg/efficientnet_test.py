@@ -110,6 +110,7 @@ dm = H5DataModule(
 # Set the device (GPU or CPU)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+model.to(device)
 
 # Set model to evaluation mode
 model.eval()
