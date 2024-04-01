@@ -12,8 +12,6 @@ from datetime import timedelta
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-from ..preprocess_funcs import train_augments, val_test_augments
-
 
 # huggingface model
 from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
@@ -27,6 +25,10 @@ dotenv.load_dotenv()
 project_root = os.getenv("PROJECT_ROOT")
 if project_root:
     sys.path.append(project_root)
+from src.experiments.transfer_comparison.preprocess_funcs import (  # noqa
+    train_augments,
+    val_test_augments,
+)
 from src.models.BaseNormalAbnormal import BaseNormalAbnormal  # noqa
 from src.models.SimpleTrainingLoop import train_model  # noqa
 from src.utilities.H5DataModule import H5DataModule  # noqa
