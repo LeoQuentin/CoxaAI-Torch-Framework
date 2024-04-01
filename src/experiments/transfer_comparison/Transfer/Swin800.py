@@ -43,7 +43,7 @@ checkpoint_dir = os.path.join(
     project_root, "src/experiments/transfer_comparison/Transfer/checkpoints"
 )
 
-experiment_file_name = "ViT800_Transfer"
+experiment_file_name = "Swin800Transfer"
 
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     config.attention_probs_dropout_prob = 0.3
 
     # Other parameters
-    size = (800, 800)  # 40x40 patches
+    size = (640, 640)  # 40x40 patches
 
     # Training parameters
     training_params = {
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             super().__init__(model=model, *args, **kwargs)
 
             # set learning rate
-            self.learning_rate = 3e-4
+            self.learning_rate = 5e-6
 
         def configure_optimizers(self):
             optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)

@@ -111,7 +111,7 @@ if __name__ == "__main__":
     feature_extractor.size = size
 
     def train_preprocess(image):
-        image = train_augments(image, size=(800, 800))
+        image = train_augments(image, size=(640, 640))
 
         # Extract features using the feature extractor from Huggingface
         data = feature_extractor(
