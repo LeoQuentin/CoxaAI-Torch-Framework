@@ -52,11 +52,11 @@ if __name__ == "__main__":
     config = ViTConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
-    config.hidden_dropout_prob = 0.2
-    config.attention_probs_dropout_prob = 0.2
+    config.hidden_dropout_prob = 0.3
+    config.attention_probs_dropout_prob = 0.3
 
     # Other parameters
-    size = (800, 800)  # 40x40 patches
+    size = (640, 640)  # 40x40 patches
 
     # Training parameters
     training_params = {
