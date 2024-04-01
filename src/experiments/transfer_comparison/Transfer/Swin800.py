@@ -48,12 +48,12 @@ experiment_file_name = "ViT800_Transfer"
 # because pytorch is dumb we have to do __init__:
 if __name__ == "__main__":
     # Model ID
-    model_id = "google/vit-base-patch16-384"
+    model_id = "microsoft/swinv2-base-patch4-window12to24-192to384-22kto1k-ft"
     config = AutoConfig.from_pretrained(model_id)
 
     # Set config hyperparameters
-    config.hidden_dropout_prob = 0.2
-    config.attention_probs_dropout_prob = 0.2
+    config.hidden_dropout_prob = 0.3
+    config.attention_probs_dropout_prob = 0.3
 
     # Other parameters
     size = (800, 800)  # 40x40 patches

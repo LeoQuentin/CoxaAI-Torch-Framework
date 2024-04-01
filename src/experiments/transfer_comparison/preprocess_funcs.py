@@ -20,7 +20,7 @@ def train_augments(image, size):
         [
             transforms.Resize(size),
             transforms.RandomRotation(10),
-            transforms.Grayscale(num_output_channels=1),
+            transforms.Grayscale(num_output_channels=3),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
         ]
