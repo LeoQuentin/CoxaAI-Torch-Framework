@@ -68,6 +68,8 @@ if __name__ == "__main__":
         "test_folds": [4],
         "lr_scheduler_factor": 0.2,
         "lr_scheduler_patience": 5,
+        "log_every_n_steps": 10,
+        "precision": "16-mixed",
     }
 
     # --------------------- Model ---------------------
