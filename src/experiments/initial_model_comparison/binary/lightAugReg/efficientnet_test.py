@@ -78,9 +78,6 @@ class EfficientNet_384(torch.nn.Module):
         self.model = AutoModelForImageClassification.from_config(config)
         self.model.classifier = torch.nn.Linear(self.model.classifier.in_features, 2)
 
-    def forward(self, x):
-        return self.model(x)
-
 
 checkpoint_path = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/src/experiments/initial_model_comparison/binary/lightAugReg/modelcheckpoints/google/efficientnet-b0_binary_lightAugReg_384_best_checkpoint_epoch=23_val_loss=0.25.ckpt"  # noqa
 checkpoint = torch.load(checkpoint_path)
