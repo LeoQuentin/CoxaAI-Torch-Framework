@@ -168,6 +168,7 @@ with open("efficientnet_metrics.txt", "wb") as file:
             checkpoint_path = os.path.join(checkpoint_dir, filename)
             model_id = filename.split("_")[0]
             image_size = tuple(map(int, filename.split("_")[3].split("x")))
+            image_size = (image_size[0], image_size[0])
             config_name = f"google/{model_id}"
 
             # Select the appropriate data module based on the image size
