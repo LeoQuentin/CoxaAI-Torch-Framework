@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 
 # huggingface model
-from transformers import ViTImageProcessor, ViTForImageClassification, ViTConfig
+from transformers import ViTImageProcessor, AutoModelForImageClassification, ViTConfig
 
 import os
 import sys
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     class NeuralNetwork(BaseNormalAbnormal):
         def __init__(self, *args, **kwargs):
             # Initialize the ConvNextV2 model with specific configuration
-            model = ViTForImageClassification.from_config(config=config)
+            model = AutoModelForImageClassification.from_config(config)
             model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
             super().__init__(model=model, *args, **kwargs)
 
