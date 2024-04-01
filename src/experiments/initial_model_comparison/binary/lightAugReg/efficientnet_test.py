@@ -75,9 +75,9 @@ def val_test_preprocess(image):
 class EfficientNet_384(BaseNormalAbnormal):
     def __init__(self, config):
         model = AutoModelForImageClassification.from_config(config)
-        model.classifier = torch.nn.Linear(self.model.classifier.in_features, 2)
+        model.classifier = torch.nn.Linear(model.classifier.in_features, 2)
 
-        super().__init__(model)
+        super().__init__(model=model)
 
 
 checkpoint_path = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/src/experiments/initial_model_comparison/binary/lightAugReg/modelcheckpoints/google/efficientnet-b0_binary_lightAugReg_384_best_checkpoint_epoch=23_val_loss=0.25.ckpt"  # noqa
