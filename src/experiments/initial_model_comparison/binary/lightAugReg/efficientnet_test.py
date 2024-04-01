@@ -72,7 +72,7 @@ def val_test_preprocess(image):
     return image
 
 
-class EfficientNet_384(torch.nn.Module):
+class EfficientNet_384(BaseNormalAbnormal):
     def __init__(self, config):
         super().__init__()
         self.model = AutoModelForImageClassification.from_config(config)
