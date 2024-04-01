@@ -7,11 +7,7 @@ import pytorch_lightning as pl
 
 
 class H5FoldDataset(Dataset):
-    def __init__(self,
-                 file_path,
-                 folds,
-                 target_var='target',
-                 transform=None):
+    def __init__(self, file_path, folds, target_var="target", transform=None):
         """
         Initialize the Dataset object for loading data from specified folds in an H5 file.
 
@@ -37,8 +33,10 @@ class H5FoldDataset(Dataset):
         self.folds = folds
         self.target_var = target_var
         self.transform = transform
-        with h5py.File(self.file_path, 'r') as h5_file:
-            self.lengths = [h5_file[f'fold_{fold}/image'].shape[0] for fold in self.folds]
+        with h5py.File(self.file_path, "r") as h5_file:
+            self.lengths = [
+                h5_file[f"fold_{fold}/image"].shape[0] for fold in self.folds
+            ]
             self.index_mapping = []
             for i, fold in enumerate(self.folds):
                 for j in range(self.lengths[i]):
@@ -49,9 +47,11 @@ class H5FoldDataset(Dataset):
 
     def __getitem__(self, idx):
         fold, index = self.index_mapping[idx]
-        with h5py.File(self.file_path, 'r') as h5_file:
-            image = h5_file[f'fold_{fold}/image'][index]
-            target = h5_file[f'fold_{fold}/{self.target_var}'][index]  # Use the specified target
+        with h5py.File(self.file_path, "r") as h5_file:
+            image = h5_file[f"fold_{fold}/image"][index]
+            target = h5_file[f"fold_{fold}/{self.target_var}"][
+                index
+            ]  # Use the specified target
 
             # Apply transform if specified
             if self.transform:
@@ -87,16 +87,19 @@ class H5DataModule(pl.LightningDataModule):
     target_var : str, optional
         Name of the target variable in the dataset ('target' or 'diagnosis'), by default 'target'.
     """
-    def __init__(self,
-                 data_file,
-                 batch_size=16,
-                 train_folds=None,
-                 val_folds=None,
-                 test_folds=None,
-                 train_transform=None,
-                 val_transform=None,
-                 test_transform=None,
-                 target_var='target'):
+
+    def __init__(
+        self,
+        data_file,
+        batch_size=16,
+        train_folds=None,
+        val_folds=None,
+        test_folds=None,
+        train_transform=None,
+        val_transform=None,
+        test_transform=None,
+        target_var="target",
+    ):
         super().__init__()
         self.save_hyperparameters()
         self.data_file = data_file
@@ -125,18 +128,18 @@ class H5DataModule(pl.LightningDataModule):
             "target_var": self.target_var,
         }
 
-        if stage == 'fit' or stage is None:
-            self.train_dataset = H5FoldDataset(**common_params,
-                                               folds=self.train_folds,
-                                               transform=self.train_transform)
-            self.val_dataset = H5FoldDataset(**common_params,
-                                             folds=self.val_folds,
-                                             transform=self.val_transform)
+        if stage == "fit" or stage is None:
+            self.train_dataset = H5FoldDataset(
+                **common_params, folds=self.train_folds, transform=self.train_transform
+            )
+            self.val_dataset = H5FoldDataset(
+                **common_params, folds=self.val_folds, transform=self.val_transform
+            )
 
-        if stage == 'test' or stage is None:
-            self.test_dataset = H5FoldDataset(**common_params,
-                                              folds=self.test_folds,
-                                              transform=self.test_transform)
+        if stage == "test" or stage is None:
+            self.test_dataset = H5FoldDataset(
+                **common_params, folds=self.test_folds, transform=self.test_transform
+            )
 
     def train_dataloader(self):
         """
@@ -147,10 +150,9 @@ class H5DataModule(pl.LightningDataModule):
         DataLoader
             A DataLoader instance configured for the training dataset, with shuffling enabled.
         """
-        return DataLoader(self.train_dataset,
-                          batch_size=self.batch_size,
-                          shuffle=True,
-                          num_workers=16)
+        return DataLoader(
+            self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=16
+        )
 
     def val_dataloader(self):
         """
@@ -161,9 +163,7 @@ class H5DataModule(pl.LightningDataModule):
         DataLoader
             A DataLoader instance configured for the validation dataset.
         """
-        return DataLoader(self.val_dataset,
-                          batch_size=self.batch_size,
-                          num_workers=8)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=8)
 
     def test_dataloader(self):
         """
@@ -174,6 +174,4 @@ class H5DataModule(pl.LightningDataModule):
         DataLoader
             A DataLoader instance configured for the test dataset.
         """
-        return DataLoader(self.test_dataset,
-                          batch_size=self.batch_size,
-                          num_workers=4)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=4)

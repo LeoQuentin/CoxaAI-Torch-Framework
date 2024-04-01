@@ -3,10 +3,11 @@ import numpy as np
 import os
 import dotenv
 import argparse
+
 dotenv.load_dotenv()
 
 
-def explore_hdf5_group(group, prefix=''):
+def explore_hdf5_group(group, prefix=""):
     """
     Recursively explores and prints information about an HDF5 group and its contents.
 
@@ -21,7 +22,7 @@ def explore_hdf5_group(group, prefix=''):
             print(f"Dataset: {path}")
             print(f"  Shape: {item.shape}, Dtype: {item.dtype}")
             print_dataset_attributes(item)
-            if key in ['diagnosis', 'target']:
+            if key in ["diagnosis", "target"]:
                 print_unique_values(item, key)
         elif isinstance(item, h5py.Group):
             # Print group information and explore recursively
@@ -69,7 +70,7 @@ def main(hdf5_path):
     :param hdf5_path: Path to the HDF5 file.
     """
     try:
-        with h5py.File(hdf5_path, 'r') as file:
+        with h5py.File(hdf5_path, "r") as file:
             print(f"Exploring HDF5 file: {hdf5_path}")
             explore_hdf5_group(file)
     except Exception as e:
@@ -77,14 +78,20 @@ def main(hdf5_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Print out structure of H5 dataset.") # noqa
-    parser.add_argument("--data_file",
-                        type=str,
-                        default=os.getenv("DATA_FILE"),
-                        help="Path to the data file. Defaults to DATA_FILE environment variable.")
+    parser = argparse.ArgumentParser(
+        description="Print out structure of H5 dataset."
+    )  # noqa
+    parser.add_argument(
+        "--data_file",
+        type=str,
+        default=os.getenv("DATA_FILE"),
+        help="Path to the data file. Defaults to DATA_FILE environment variable.",
+    )
     args = parser.parse_args()
 
     if not args.data_file:
-        raise ValueError("No data file provided and DATA_FILE environment variable is not set.")
+        raise ValueError(
+            "No data file provided and DATA_FILE environment variable is not set."
+        )
 
     main(args.data_file)

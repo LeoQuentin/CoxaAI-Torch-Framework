@@ -5,12 +5,14 @@ from pytorch_lightning.loggers import CSVLogger
 from datetime import timedelta
 
 
-def train_model(dm,
-                model,
-                max_time_hours=12,
-                early_stopping_patience=10,
-                log_every_n_steps=25,
-                presicion="32-true"):
+def train_model(
+    dm,
+    model,
+    max_time_hours=12,
+    early_stopping_patience=10,
+    log_every_n_steps=25,
+    presicion="32-true",
+):
     """
     Trains the given model using the provided DataModule.
 
@@ -27,26 +29,33 @@ def train_model(dm,
     - best_model_path: Path to the best model checkpoint.
     """
     # Callbacks
-    early_stopping = EarlyStopping(monitor='val_loss', patience=early_stopping_patience)
-    model_checkpoint = ModelCheckpoint(dirpath=os.getenv("MODEL_SAVE_DIR"),
-                                       filename=f'{model.__class__.__name__}_best_checkpoint' + '_{epoch:02d}_{val_loss:.2f}',  # noqa
-                                       monitor='val_loss',
-                                       mode='min',
-                                       save_top_k=1)
+    early_stopping = EarlyStopping(monitor="val_loss", patience=early_stopping_patience)
+    model_checkpoint = ModelCheckpoint(
+        dirpath=os.getenv("MODEL_SAVE_DIR"),
+        filename=f"{model.__class__.__name__}_best_checkpoint"
+        + "_{epoch:02d}_{val_loss:.2f}",  # noqa
+        monitor="val_loss",
+        mode="min",
+        save_top_k=1,
+    )
 
     # Logger
     log_dir = os.path.join(os.getenv("LOG_FILE_DIR"), "loss_logs")
-    logger = CSVLogger(save_dir=log_dir,
-                       name=model.__class__.__name__,
-                       flush_logs_every_n_steps=log_every_n_steps)
+    logger = CSVLogger(
+        save_dir=log_dir,
+        name=model.__class__.__name__,
+        flush_logs_every_n_steps=log_every_n_steps,
+    )
 
     # Trainer
-    trainer = Trainer(max_time=timedelta(hours=max_time_hours),
-                      accelerator="auto",
-                      callbacks=[early_stopping, model_checkpoint],
-                      logger=logger,
-                      log_every_n_steps=log_every_n_steps,
-                      precision=presicion)
+    trainer = Trainer(
+        max_time=timedelta(hours=max_time_hours),
+        accelerator="auto",
+        callbacks=[early_stopping, model_checkpoint],
+        logger=logger,
+        log_every_n_steps=log_every_n_steps,
+        precision=presicion,
+    )
 
     # Training
     trainer.fit(model, dm)
