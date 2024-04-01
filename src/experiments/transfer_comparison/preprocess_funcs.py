@@ -27,6 +27,8 @@ def train_augments(image, size):
     )
     image = transform_pipeline(image)
 
+    return image
+
 
 def val_test_augments(image, size):
     # basically same as train_preprocess but without the augmentations
@@ -40,3 +42,4 @@ def val_test_augments(image, size):
         ]
     )
     image = transform_pipeline(image)
+    return image
