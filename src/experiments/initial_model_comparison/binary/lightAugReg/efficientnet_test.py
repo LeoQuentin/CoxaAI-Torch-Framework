@@ -158,6 +158,7 @@ with open("efficientnet_metrics.txt", "w") as file:
             checkpoint_path = os.path.join(checkpoint_dir, filename)
             model_id = filename.split("_")[0]
             image_size = tuple(map(int, filename.split("_")[3].split("x")))
+            config_name = f"google/{model_id}"
 
             accuracy, precision, recall, f1 = evaluate_model(
                 checkpoint_path, model_id, image_size
