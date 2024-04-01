@@ -171,3 +171,4 @@ with open("efficientnet_metrics.txt", "w") as file:
             file.write(f"Recall: {recall:.4f}\n")
             file.write(f"F1-score: {f1:.4f}\n")
             file.write("\n")
+            file.flush()
