@@ -104,7 +104,7 @@ if __name__ == "__main__":
                 super().__init__(model=model, *args, **kwargs)
 
                 # set learning rate
-                self.learning_rate = 3e-4
+                self.learning_rate = 1e-3
 
             def configure_optimizers(self):
                 optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
