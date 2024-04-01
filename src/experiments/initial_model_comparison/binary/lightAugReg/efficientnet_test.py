@@ -117,6 +117,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.eval()
 
 # Get the test dataloader
+dm.setup(stage="test")
 test_dataloader = dm.test_dataloader()
 
 # Initialize variables to store predictions and labels
