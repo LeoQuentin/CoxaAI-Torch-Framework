@@ -5,6 +5,7 @@ from datetime import timedelta
 import sys
 import dotenv
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from tqdm import tqdm
 
 
 # huggingface model
@@ -80,24 +81,65 @@ class EfficientNet_384(BaseNormalAbnormal):
         super().__init__(model=model)
 
 
-checkpoint_path = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/src/experiments/initial_model_comparison/binary/lightAugReg/modelcheckpoints/google/efficientnet-b0_binary_lightAugReg_384_best_checkpoint_epoch=23_val_loss=0.25.ckpt"  # noqa
-checkpoint = torch.load(checkpoint_path)
-state_dict = checkpoint["state_dict"]
+def evaluate_model(checkpoint_path, model_id, image_size):
+    checkpoint = torch.load(checkpoint_path)
+    state_dict = checkpoint["state_dict"]
 
-model_id = "google/efficientnet-b0"  # Replace with the appropriate model ID
-config = AutoConfig.from_pretrained(model_id)
-config.image_size = (384, 384)  # Replace with the appropriate image size
-config.num_channels = 1
+    config = AutoConfig.from_pretrained(model_id)
+    config.image_size = image_size
+    config.num_channels = 1
 
-model = EfficientNet_384(config)
-model.load_state_dict(state_dict)
+    model = EfficientNet_384(config)
+    model.load_state_dict(state_dict)
+    model.eval()
 
-model.eval()
+    # Set the device (GPU or CPU)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
+    # Get the test dataloader
+    dm.setup(stage="test")
+    test_dataloader = dm.test_dataloader()
+
+    # Initialize variables to store predictions and labels
+    all_predictions = []
+    all_labels = []
+
+    # Disable gradient computation
+    with torch.no_grad():
+        for batch in test_dataloader:
+            inputs, labels = batch
+
+            # Move inputs and labels to the appropriate device (e.g., GPU)
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+
+            # Run inference on the test batch
+            outputs = model(inputs)
+
+            # Get the predicted labels
+            _, predicted = torch.max(outputs, 1)
+
+            # Append predictions and labels to the lists
+            all_predictions.extend(predicted.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    # Calculate metrics
+    accuracy = accuracy_score(all_labels, all_predictions)
+    precision = precision_score(all_labels, all_predictions)
+    recall = recall_score(all_labels, all_predictions)
+    f1 = f1_score(all_labels, all_predictions)
+
+    return accuracy, precision, recall, f1
 
 
+# Directory containing the checkpoint files
+checkpoint_dir = "/mnt/users/leobakh/VET_project/VET-Special-syllabus/src/experiments/initial_model_comparison/binary/lightAugReg/modelcheckpoints/google"
+
+# Initialize the data module
 dm = H5DataModule(
     os.getenv("DATA_FILE"),
-    batch_size=8,
+    batch_size=16,
     train_folds=[0],
     val_folds=[0],
     test_folds=[4],
@@ -107,50 +149,24 @@ dm = H5DataModule(
     test_transform=val_test_preprocess,
 )
 
-# Set the device (GPU or CPU)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Open the file to write the metrics
+with open("efficientnet_metrics.txt", "w") as file:
+    # Iterate over the checkpoint files
+    for filename in tqdm(os.listdir(checkpoint_dir)):
+        if filename.startswith("efficientnet") and filename.endswith(".ckpt"):
+            print(f"Evaluating model: {filename}")
+            checkpoint_path = os.path.join(checkpoint_dir, filename)
+            model_id = filename.split("_")[0]
+            image_size = tuple(map(int, filename.split("_")[3].split("x")))
 
-model.to(device)
+            accuracy, precision, recall, f1 = evaluate_model(
+                checkpoint_path, model_id, image_size
+            )
 
-# Set model to evaluation mode
-model.eval()
-
-# Get the test dataloader
-dm.setup(stage="test")
-test_dataloader = dm.test_dataloader()
-
-# Initialize variables to store predictions and labels
-all_predictions = []
-all_labels = []
-
-# Disable gradient computation
-with torch.no_grad():
-    for batch in test_dataloader:
-        inputs, labels = batch
-
-        # Move inputs and labels to the appropriate device (e.g., GPU)
-        inputs = inputs.to(device)
-        labels = labels.to(device)
-
-        # Run inference on the test batch
-        outputs = model(inputs)
-
-        # Get the predicted labels
-        _, predicted = torch.max(outputs, 1)
-
-        # Append predictions and labels to the lists
-        all_predictions.extend(predicted.cpu().numpy())
-        all_labels.extend(labels.cpu().numpy())
-
-# Calculate metrics
-accuracy = accuracy_score(all_labels, all_predictions)
-precision = precision_score(all_labels, all_predictions)
-recall = recall_score(all_labels, all_predictions)
-f1 = f1_score(all_labels, all_predictions)
-
-# Save metrics to a file
-with open("test_metrics.txt", "w") as file:
-    file.write(f"Accuracy: {accuracy:.4f}\n")
-    file.write(f"Precision: {precision:.4f}\n")
-    file.write(f"Recall: {recall:.4f}\n")
-    file.write(f"F1-score: {f1:.4f}\n")
+            # Write the metrics to the file
+            file.write(f"Model: {model_id}, Image Size: {image_size}\n")
+            file.write(f"Accuracy: {accuracy:.4f}\n")
+            file.write(f"Precision: {precision:.4f}\n")
+            file.write(f"Recall: {recall:.4f}\n")
+            file.write(f"F1-score: {f1:.4f}\n")
+            file.write("\n")
