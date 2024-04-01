@@ -161,7 +161,7 @@ with open("efficientnet_metrics.txt", "w") as file:
             config_name = f"google/{model_id}"
 
             accuracy, precision, recall, f1 = evaluate_model(
-                checkpoint_path, model_id, image_size
+                checkpoint_path, config_name, image_size
             )
 
             # Write the metrics to the file
