@@ -159,33 +159,36 @@ dm_800 = H5DataModule(
     test_transform=lambda x: val_test_preprocess(x, (800, 800)),
 )
 
-# Open the file to write the metrics
-with open("efficientnet_metrics.txt", "wb") as file:
-    # Iterate over the checkpoint files
-    for filename in tqdm(os.listdir(checkpoint_dir)):
-        if filename.startswith("efficientnet") and filename.endswith(".ckpt"):
-            print(f"Evaluating model: {filename}")
-            checkpoint_path = os.path.join(checkpoint_dir, filename)
-            model_id = filename.split("_")[0]
-            image_size = tuple(map(int, filename.split("_")[3].split("x")))
-            image_size = (image_size[0], image_size[0])
-            config_name = f"google/{model_id}"
+# Clear the file
+with open("efficientnet_metrics.txt", "w") as file:
+    pass
 
-            # Select the appropriate data module based on the image size
-            if image_size == (384, 384):
-                dm = dm_384
-            elif image_size == (640, 640):
-                dm = dm_640
-            elif image_size == (800, 800):
-                dm = dm_800
-            else:
-                raise ValueError(f"Unsupported image size: {image_size}")
+# Iterate over the checkpoint files
+for filename in tqdm(os.listdir(checkpoint_dir)):
+    if filename.startswith("efficientnet") and filename.endswith(".ckpt"):
+        print(f"Evaluating model: {filename}")
+        checkpoint_path = os.path.join(checkpoint_dir, filename)
+        model_id = filename.split("_")[0]
+        image_size = tuple(map(int, filename.split("_")[3].split("x")))
+        image_size = (image_size[0], image_size[0])
+        config_name = f"google/{model_id}"
 
-            accuracy, precision, recall, f1 = evaluate_model(
-                checkpoint_path, config_name, image_size, dm
-            )
+        # Select the appropriate data module based on the image size
+        if image_size == (384, 384):
+            dm = dm_384
+        elif image_size == (640, 640):
+            dm = dm_640
+        elif image_size == (800, 800):
+            dm = dm_800
+        else:
+            raise ValueError(f"Unsupported image size: {image_size}")
 
-            # Write the metrics to the file
+        accuracy, precision, recall, f1 = evaluate_model(
+            checkpoint_path, config_name, image_size, dm
+        )
+
+        # Write the metrics to the file
+        with open("efficientnet_metrics.txt", "a") as file:
             file.write(f"Model: {model_id}, Image Size: {image_size}\n")
             file.write(f"Accuracy: {accuracy:.4f}\n")
             file.write(f"Precision: {precision:.4f}\n")
