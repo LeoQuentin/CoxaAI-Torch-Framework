@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "coxaaitorch"
+version = "0.1.0"
+description = ""
+authors = ["LeoQuentin <leo.quentin.thorbjornsen.bakholt@nmbu.no>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pytorch-lightning = "^2.2.1"
+torch = "^2.2.2"
+scikit-learn = "^1.4.1.post1"
+torchvision = "^0.17.2"
+torcheval = "^0.0.7"
+transformers = "^4.39.3"
+numpy = "^1.26.4"
+pandas = "^2.2.1"
+tqdm = "^4.66.2"
+matplotlib = "^3.8.3"
+seaborn = "^0.13.2"
+scikit-image = "^0.22.0"
+opencv-python = "^4.9.0.80"
+pillow = "^10.3.0"
+simpleitk = "^2.3.1"
+h5py = "^3.10.0"
+python-dotenv = "^1.0.1"
+timm = "^0.9.16"
+albumentations = "^1.4.3"
+kornia = "^0.7.2"
+grad-cam = "^1.5.0"
+captum = "^0.7.0"
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
