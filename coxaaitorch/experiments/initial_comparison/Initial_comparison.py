@@ -41,7 +41,7 @@ models_to_train = [
 
 training_params = {
     "batch_size": 8,
-    "early_stopping_patience": 12,
+    "early_stopping_patience": 20,
     "max_time_hours": 12,
     "train_folds": [0, 1, 2],
     "val_folds": [3],
@@ -49,7 +49,7 @@ training_params = {
     "log_every_n_steps": 10,
     "presicion": "16-mixed",
     "lr_scheduler_factor": 0.2,
-    "lr_scheduler_patience": 5,
+    "lr_scheduler_patience": 15,
     "learning_rate": 3e-4,
 }
 
@@ -138,18 +138,15 @@ if __name__ == "__main__":
                 max_time=timedelta(hours=training_params["max_time_hours"]),
                 accelerator="auto",
                 callbacks=[
-                    # early_stopping,
+                    early_stopping,
                     model_checkpoint,
                     LearningRateMonitor(logging_interval="step"),
                 ],
                 logger=logger,
                 log_every_n_steps=training_params["log_every_n_steps"],
                 precision=training_params["presicion"],
-                max_steps=5,
             )
             # Training
             trainer.fit(model, dm)
 
-            # --------------------- Test ---------------------
-
-            output = trainer.test(model, datamodule=dm)
+            trainer.test(model, datamodule=dm)
