@@ -10,7 +10,7 @@
 ## Script commands
 module load singularity
 
-SIFFILE="/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/container_pytorch_cv.sif" ## FILL INN
+SIFFILE="/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/container_CoxaAI_Poetry.sif" ## FILL INN
 ## RUN THE PYTHON SCRIPT
 # Using a singularity container named container_u_net.sif
 singularity exec --nv $SIFFILE python Initial_comparison.py
