@@ -79,7 +79,7 @@ if __name__ == "__main__":
         def train_transform(image):
             image = random_augmentation(image, size=size, channels=3)
             image = preprocessor(
-                image,
+                images=image,
                 return_tensors="pt",
                 input_data_format="channels_first",
                 do_rescale=False,
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         def val_transform(image):
             image = no_augmentation(image, size=size, channels=3)
             image = preprocessor(
-                image,
+                images=image,
                 return_tensors="pt",
                 input_data_format="channels_first",
                 do_rescale=False,
