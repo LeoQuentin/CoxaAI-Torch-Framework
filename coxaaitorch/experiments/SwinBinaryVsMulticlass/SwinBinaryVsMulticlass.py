@@ -53,10 +53,10 @@ training_params = {
 
 class NeuralNetwork(BaseNetwork):
     def __init__(self, model_name, num_classes, size, *args, **kwargs):
-        model_dict = create_model(
+        self.model_dict = create_model(
             model_name, size=size, pretrained=False, classes=num_classes, channels=3
         )
-        model = model_dict["model"]
+        model = self.model_dict["model"]
         super().__init__(model, num_classes=num_classes, *args, **kwargs)
         self.learning_rate = 3e-4
 
@@ -69,13 +69,36 @@ if __name__ == "__main__":
     for binary_or_multiclass in ["binary", "multiclass"]:
         model_name = "swinv2_base_patch4_window12to24_192to384_22kto1k_ft"
         num_classes = 2 if binary_or_multiclass == "binary" else 5
-        size = (600, 600)
+        size = (640, 640)
 
         # Create the model
-        model = NeuralNetwork(
-            model_name=model_name,
-            num_classes=num_classes,
-            size=size)
+        model = NeuralNetwork(model_name=model_name, num_classes=num_classes, size=size)
+
+        preprocessor = model.model_dict["processor"]
+
+        def train_transform(image):
+            image = random_augmentation(image, size=size, channels=3)
+            image = preprocessor(
+                image,
+                return_tensors="pt",
+                input_data_format="channels_first",
+                do_rescale=False,
+            )
+            if len(image.size()) == 4:
+                image = image.squeeze(0)
+            return image
+
+        def val_transform(image):
+            image = no_augmentation(image, size=size, channels=3)
+            image = preprocessor(
+                image,
+                return_tensors="pt",
+                input_data_format="channels_first",
+                do_rescale=False,
+            )
+            if len(image.size()) == 4:
+                image = image.squeeze(0)
+            return image
 
         # Define the data module
         data_module = H5DataModule(
@@ -85,9 +108,9 @@ if __name__ == "__main__":
             val_folds=training_params["val_folds"],
             test_folds=training_params["test_folds"],
             target_var="target" if binary_or_multiclass == "binary" else "diagnosis",
-            train_transform=partial(random_augmentation, size=size, channels=3),
-            val_transform=partial(no_augmentation, size=size, channels=3),
-            test_transform=partial(no_augmentation, size=size, channels=3),
+            train_transform=train_transform,
+            val_transform=val_transform,
+            test_transform=val_transform,
         )
 
         # Define the logger
