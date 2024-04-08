@@ -82,6 +82,7 @@ if __name__ == "__main__":
                 input_data_format="channels_first",
                 do_rescale=False,
             )
+            image = image["pixel_values"]
             if len(image.size()) == 4:
                 image = image.squeeze(0)
             return image
@@ -94,6 +95,7 @@ if __name__ == "__main__":
                 input_data_format="channels_first",
                 do_rescale=False,
             )
+            image = image["pixel_values"]
             if len(image.size()) == 4:
                 image = image.squeeze(0)
             return image
