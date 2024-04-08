@@ -35,7 +35,7 @@ checkpoint_dir = os.path.join(
 
 
 training_params = {
-    "batch_size": 8,
+    "batch_size": 6,
     "early_stopping_patience": 25,
     "max_time_hours": 12,
     "train_folds": [0, 1, 2],
