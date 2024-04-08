@@ -10,36 +10,23 @@ import torchmetrics
 # --------------------- Model ---------------------
 
 
-class BaseNormalAbnormal(pl.LightningModule):
-    def __init__(self, model, *args, **kwargs):
+class BaseNetwork(pl.LightningModule):
+    def __init__(self, model, num_classes=2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.save_hyperparameters(ignore=["model"])
 
-        # Initialize the ConvNextV2 model
+        # Store the model as an attribute
         self.model = model
-
-        self.loss = (
-            nn.CrossEntropyLoss()
-        )  # Placeholder to show that there is a self.loss
+        self.loss = None  # set with method configure_loss_func
         self.configure_loss_func()
 
+        # Multi-class or binary
+        self.num_classes = num_classes
+        self.metric_task = "binary" if num_classes == 2 else "multiclass"
+
         # Metrics
-        device = self.device  # need to manually set device
-        self.metrics = {
-            "accuracy": torchmetrics.Accuracy(task="binary", num_classes=2),
-            "precision": torchmetrics.Precision(
-                task="binary", average="macro", num_classes=2
-            ),
-            "recall": torchmetrics.Recall(
-                task="binary", average="macro", num_classes=2
-            ),
-            "specificity": torchmetrics.Specificity(task="binary", num_classes=2),
-            "f1": torchmetrics.F1Score(task="binary", average="macro", num_classes=2),
-            "acc": torchmetrics.Accuracy(task="binary", num_classes=2),
-            "mcc": torchmetrics.MatthewsCorrCoef(task="binary", num_classes=2),
-        }
-        for name, metric in self.metrics.items():
-            metric.to(device)
+        self.metrics = {}  # set with method set_metrics
+        self.set_metrics()
 
     def forward(self, pixel_values):
         outputs = self.model(pixel_values)
@@ -110,3 +97,18 @@ class BaseNormalAbnormal(pl.LightningModule):
         device = self.device
         for metric in self.metrics.values():
             metric.to(device)
+
+    def set_metrics(self):
+        common_settings = {
+            "task": self.metric_task,
+            "num_classes": self.num_classes,
+        }
+        self.metrics = {
+            "accuracy": torchmetrics.Accuracy(**common_settings),
+            "precision": torchmetrics.Precision(**common_settings, average="macro"),
+            "recall": torchmetrics.Recall(**common_settings, average="macro"),
+            "specificity": torchmetrics.Specificity(**common_settings),
+            "f1": torchmetrics.F1Score(**common_settings, average="macro"),
+            "mcc": torchmetrics.MatthewsCorrCoef(**common_settings),
+        }
+        self.metrics_to_device()

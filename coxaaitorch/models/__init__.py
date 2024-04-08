@@ -5,7 +5,7 @@ from coxaaitorch.models.model_registry import (
     create_model,
 )
 
-from coxaaitorch.models.BaseClassBinary import BaseNormalAbnormal  # noqa
+from coxaaitorch.models.BaseNetwork import BaseNetwork
 
 from coxaaitorch.models.model_implementations.efficientnet import *  # noqa
 from coxaaitorch.models.model_implementations.efficientnetv2 import *  # noqa
@@ -18,5 +18,5 @@ __all__ = [  # noqa
     "list_available_models",
     "get_model_creation_func",
     "create_model",
-    "BaseNormalAbnormal",
+    "BaseNetwork",
 ]

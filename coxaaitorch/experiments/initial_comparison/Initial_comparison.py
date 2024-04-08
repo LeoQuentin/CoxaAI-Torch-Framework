@@ -36,7 +36,7 @@ checkpoint = os.path.join(
 models_to_train = [
     "vit-base-patch16-384",
     "swinv2_base_patch4_window12to24_192to384_22kto1k_ft",
-    "swin_base_patch4_window12_384_in22k"
+    "swin_base_patch4_window12_384_in22k",
 ]
 
 training_params = {
@@ -59,7 +59,6 @@ class NeuralNetwork(BaseNormalAbnormal):
         model = create_model(
             model_name, size=size, pretrained=False, classes=2, channels=1
         )
-        print(model)
         super().__init__(model=model["model"], *args, **kwargs)
         self.training_params = training_params
 
