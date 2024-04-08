@@ -52,7 +52,7 @@ training_params = {
 class NeuralNetwork(BaseNetwork):
     def __init__(self, model_name, num_classes, size, *args, **kwargs):
         self.model_dict = create_model(
-            model_name, size=size, pretrained=False, classes=num_classes, channels=3
+            model_name, size=size, pretrained=True, classes=num_classes, channels=3
         )
         model = self.model_dict["model"]
         super().__init__(model, num_classes=num_classes, *args, **kwargs)
