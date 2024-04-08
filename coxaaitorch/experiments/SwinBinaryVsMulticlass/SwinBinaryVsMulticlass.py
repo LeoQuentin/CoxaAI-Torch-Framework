@@ -5,8 +5,6 @@ import dotenv
 from coxaaitorch.augmentation.transforms import no_augmentation, random_augmentation
 
 # for making the augmentation functions compatible with H5DataModule, hyperthreading/pickling issue
-from functools import partial
-
 from pytorch_lightning import Trainer
 from pytorch_lightning.tuner import Tuner
 from pytorch_lightning.callbacks import (

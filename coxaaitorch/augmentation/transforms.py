@@ -11,6 +11,7 @@ def no_augmentation(image, size=(800, 800), channels=1):
         [
             transforms.ToPILImage(),
             transforms.Resize(size),
+            transforms.Grayscale(num_output_channels=channels),
             transforms.ToTensor(),
         ]
     )
@@ -62,8 +63,8 @@ def random_augmentation(image, size=(800, 800), channels=1):
         [
             transforms.ToPILImage(),
             transforms.Resize(size),
-            transforms.Grayscale(num_output_channels=channels),
             transforms.RandAugment(),
+            transforms.Grayscale(num_output_channels=channels),
             transforms.ToTensor(),
         ]
     )
