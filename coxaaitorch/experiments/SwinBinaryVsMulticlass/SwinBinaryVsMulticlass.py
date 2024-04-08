@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
         # Define the data module
         data_module = H5DataModule(
-            data_dir=os.getenv["DATA_FILE"],
+            data_dir=os.getenv("DATA_FILE"),
             batch_size=training_params["batch_size"],
             train_folds=training_params["train_folds"],
             val_folds=training_params["val_folds"],
