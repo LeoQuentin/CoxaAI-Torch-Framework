@@ -52,10 +52,11 @@ training_params = {
 
 
 class NeuralNetwork(BaseNetwork):
-    def __init__(self, model_name, num_classes, size, training_params, *args, **kwargs):
-        model = create_model(
+    def __init__(self, model_name, num_classes, size, *args, **kwargs):
+        model_dict = create_model(
             model_name, size=size, pretrained=False, classes=num_classes, channels=3
         )
+        model = model_dict["model"]
         super().__init__(model, num_classes=num_classes, *args, **kwargs)
         self.learning_rate = 3e-4
 
@@ -71,12 +72,12 @@ if __name__ == "__main__":
         size = (600, 600)
 
         # Create the model
-        model = NeuralNetwork(
+        temp_model = NeuralNetwork(
             model_name=model_name,
             num_classes=num_classes,
-            size=size,
-            training_params=training_params,
-        )
+            size=size)
+
+        model = NeuralNetwork()
 
         # Define the data module
         data_module = H5DataModule(
