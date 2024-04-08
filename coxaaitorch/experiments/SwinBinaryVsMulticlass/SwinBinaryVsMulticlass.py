@@ -7,15 +7,16 @@ from coxaaitorch.augmentation.transforms import no_augmentation, random_augmenta
 # for making the augmentation functions compatible with H5DataModule, hyperthreading/pickling issue
 from functools import partial
 
-
 from pytorch_lightning import Trainer
+from pytorch_lightning.tuner import Tuner
 from pytorch_lightning.callbacks import (
     EarlyStopping,
     ModelCheckpoint,
     LearningRateMonitor,
 )
 from pytorch_lightning.loggers import CSVLogger
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+# from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from coxaaitorch.utilities import H5DataModule
 from coxaaitorch.models import BaseNetwork
@@ -59,21 +60,8 @@ class NeuralNetwork(BaseNetwork):
         self.learning_rate = 3e-4
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(
-            self.parameters(), lr=self.learning_rate
-        )
-        lr_scheduler = {
-            "scheduler": ReduceLROnPlateau(
-                optimizer,
-                mode="min",
-                factor=training_params["lr_scheduler_factor"],
-                patience=training_params["lr_scheduler_patience"],
-            ),
-            "monitor": "val_loss",
-            "interval": "epoch",
-            "frequency": 1,
-        }
-        return [optimizer], [lr_scheduler]
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        return optimizer
 
 
 if __name__ == "__main__":
@@ -104,8 +92,7 @@ if __name__ == "__main__":
         )
 
         # Define the logger
-        logger = CSVLogger(log_dir,
-                           name="swinV2" + "-" + binary_or_multiclass)
+        logger = CSVLogger(log_dir, name="swinV2" + "-" + binary_or_multiclass)
 
         # Define the callbacks
         early_stopping = EarlyStopping(
@@ -113,8 +100,7 @@ if __name__ == "__main__":
         )
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
-            filename=f"swinV2-{binary_or_multiclass}" +
-            "-{epoch:02d}-{val_loss:.2f}",
+            filename=f"swinV2-{binary_or_multiclass}" + "-{epoch:02d}-{val_loss:.2f}",
             monitor="val_loss",
             save_top_k=1,
             mode="min",
@@ -129,8 +115,10 @@ if __name__ == "__main__":
             log_every_n_steps=training_params["log_every_n_steps"],
             precision=training_params["presicion"],
             accelerator="auto",
-            auto_lr_find=True,
         )
+
+        tuner = Tuner(trainer)
+        tuner.lr_find(model, data_module, min_lr=1e-7, max_lr=3e-3, num_training=100)
 
         # Fit the model
         trainer.fit(model, data_module)
