@@ -72,12 +72,10 @@ if __name__ == "__main__":
         size = (600, 600)
 
         # Create the model
-        temp_model = NeuralNetwork(
+        model = NeuralNetwork(
             model_name=model_name,
             num_classes=num_classes,
             size=size)
-
-        model = NeuralNetwork()
 
         # Define the data module
         data_module = H5DataModule(
