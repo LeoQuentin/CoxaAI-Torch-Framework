@@ -1,10 +1,9 @@
 #!/bin/bash
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=2
-#SBATCH --cpus-per-task=16
+#SBATCH --ntasks-per-node=32          # 16 cores (CPU)
+#SBATCH --nodes=1            # Use 1 node
 #SBATCH --job-name=CoxaAI-ViT  # Name of job
 #SBATCH --partition=gpu      # Use GPU partition
-#SBATCH --gpus-per-node=2  # Request 2 GPUs per node 
+#SBATCH --gres=gpu:1         # Use one GPUs
 #SBATCH --mem=64G            # Default memory per CPU is 3GB
 #SBATCH --output=./output_logs/training_prints_%j.out # Stdout file
 

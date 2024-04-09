@@ -141,8 +141,8 @@ if __name__ == "__main__":
             log_every_n_steps=training_params["log_every_n_steps"],
             precision=training_params["presicion"],
             accelerator="gpu",
-            devices=2,
-            strategy="ddp"
+            # devices=2,
+            # strategy="ddp"
         )
 
         tuner = Tuner(trainer)
