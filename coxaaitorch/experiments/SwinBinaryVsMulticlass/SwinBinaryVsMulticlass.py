@@ -3,6 +3,7 @@ import os
 from datetime import timedelta
 import dotenv
 from coxaaitorch.augmentation.transforms import no_augmentation, random_augmentation
+import matplotlib.pyplot as plt
 
 # for making the augmentation functions compatible with H5DataModule, hyperthreading/pickling issue
 from pytorch_lightning import Trainer
@@ -140,7 +141,12 @@ if __name__ == "__main__":
         )
 
         tuner = Tuner(trainer)
-        tuner.lr_find(model, data_module, min_lr=1e-7, max_lr=3e-3, num_training=100)
+        lr_finder = tuner.lr_find(model, data_module, min_lr=1e-6, max_lr=3e-3, num_training=200)
+        print(lr_finder.results)
+
+        # Save the resulting plot
+        fig = lr_finder.plot(suggest=True)
+        plt.savefig(f"{logger.log_dir}/lr_finder_plot.png")
 
         # Fit the model
         trainer.fit(model, data_module)
