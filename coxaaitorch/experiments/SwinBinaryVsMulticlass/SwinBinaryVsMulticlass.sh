@@ -1,6 +1,7 @@
 #!/bin/bash
-#SBATCH --ntasks-per-node=32          # 16 cores (CPU)
-#SBATCH --nodes=1            # Use 1 node
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=32
 #SBATCH --job-name=CoxaAI-ViT  # Name of job
 #SBATCH --partition=gpu      # Use GPU partition
 #SBATCH --gpus-per-node=2  # Request 2 GPUs per node 
