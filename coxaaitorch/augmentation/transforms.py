@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 def optional_preprocessor(augmentation_func):
+    """
+    A decorator to apply a preprocessor (hugging face) to the output of an augmentation function.
+    """
     @functools.wraps(augmentation_func)
     def wrapper(image, size=(800, 800), channels=1, preprocessor=None):
         # Apply the augmentation function
@@ -28,9 +31,9 @@ def optional_preprocessor(augmentation_func):
                     image = image.squeeze(0)
 
                 # Check if the size of the augmented image matches the preprocessor's expected size
-                if image.shape[-2:] != size:
+                if image.shape[-1].item() != size:
                     logger.warning(
-                        f"Mismatched sizes: Augmentation size {size} does not match preprocessor size {image.shape[-2:]}" # noqa
+                        f"Mismatched sizes: Augmentation size {size} does not match preprocessor size {image.shape[-2:].tolist()}" # noqa
                     )
             except Exception as e:
                 logger.error(f"Error occurred during preprocessing: {str(e)}")
