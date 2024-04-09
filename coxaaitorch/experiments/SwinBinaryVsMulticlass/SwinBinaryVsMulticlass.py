@@ -4,6 +4,7 @@ from datetime import timedelta
 import dotenv
 from coxaaitorch.augmentation.transforms import no_augmentation, random_augmentation
 import matplotlib.pyplot as plt
+from functools import partial
 
 # for making the augmentation functions compatible with H5DataModule, hyperthreading/pickling issue
 from pytorch_lightning import Trainer
@@ -75,46 +76,19 @@ if __name__ == "__main__":
 
         preprocessor = model.model_dict["processor"]
 
-        def train_transform(image):
-            image = random_augmentation(image, size=size, channels=3)
-            image = preprocessor(
-                images=image,
-                return_tensors="pt",
-                input_data_format="channels_first",
-                do_rescale=False,
-            )
-            image = image["pixel_values"]
-            if len(image.size()) == 4:
-                image = image.squeeze(0)
-            return image
-
-        def val_transform(image):
-            image = no_augmentation(image, size=size, channels=3)
-            image = preprocessor(
-                images=image,
-                return_tensors="pt",
-                input_data_format="channels_first",
-                do_rescale=False,
-            )
-            image = image["pixel_values"]
-            if len(image.size()) == 4:
-                image = image.squeeze(0)
-            return image
-
         # Define the data module
-        data_module = H5DataModule(
-            data_file=os.getenv("DATA_FILE"),
-            batch_size=training_params["batch_size"],
-            train_folds=training_params["train_folds"],
-            val_folds=training_params["val_folds"],
-            test_folds=training_params["test_folds"],
-            target_var="target" if binary_or_multiclass == "binary" else "diagnosis",
-            train_transform=train_transform,
-            val_transform=val_transform,
-            test_transform=val_transform,
-            train_loader_workers=16,
-            val_loader_workers=8,
-            test_loader_workers=6,
+        data_module = H5DataModule.from_base_config(
+            {
+                "train_transform": partial(
+                    random_augmentation, size=640, channels=3, preprocessor=preprocessor
+                ),
+                "val_transform": partial(
+                    no_augmentation, size=640, channels=3, preprocessor=preprocessor
+                ),
+                "test_transform": partial(
+                    no_augmentation, size=640, channels=3, preprocessor=preprocessor
+                ),
+            }
         )
 
         # Define the logger
@@ -140,14 +114,11 @@ if __name__ == "__main__":
             max_time=timedelta(hours=training_params["max_time_hours"]),
             log_every_n_steps=training_params["log_every_n_steps"],
             precision=training_params["presicion"],
-            accelerator="gpu",
-            # devices=2,
-            # strategy="ddp"
         )
 
         tuner = Tuner(trainer)
         lr_finder = tuner.lr_find(
-            model, data_module, min_lr=1e-6, max_lr=3e-3, num_training=200
+            model, data_module, min_lr=1e-6, max_lr=3e-3, num_training=200, mode="linear"
         )
         print(lr_finder.results)
 

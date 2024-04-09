@@ -207,3 +207,47 @@ class H5DataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.test_loader_workers,
         )
+
+    @staticmethod
+    def from_base_config(override=None):
+        """
+        Creates an instance of H5DataModule using the default configuration.
+        Can override any values in given configuration by passing a dictionary
+        with the desired parameters.
+
+        default configuration:
+        - data_file: DATA_FILE environment variable
+        - batch_size: 16
+        - train_folds: [0, 1, 2]
+        - val_folds: [3]
+        - test_folds: [4]
+        - target_var: 'target'
+        - train_transform: None
+        - val_transform: None
+        - test_transform: None
+        - train_loader_workers: 16
+        - val_loader_workers: 8
+        - test_loader_workers: 6
+
+        Returns
+        -------
+        H5DataModule
+            An instance of H5DataModule with default configuration.
+        """
+        if not override:
+            override = {}
+
+        return H5DataModule(
+            data_file=override.get("data_file", os.getenv("DATA_FILE")),
+            batch_size=override.get("batch_size", 16),
+            train_folds=override.get("train_folds", [0, 1, 2]),
+            val_folds=override.get("val_folds", [3]),
+            test_folds=override.get("test_folds", [4]),
+            target_var=override.get("target_var", "target"),
+            train_transform=override.get("train_transform", None),
+            val_transform=override.get("val_transform", None),
+            test_transform=override.get("test_transform", None),
+            train_loader_workers=override.get("train_loader_workers", 16),
+            val_loader_workers=override.get("val_loader_workers", 8),
+            test_loader_workers=override.get("test_loader_workers", 6),
+        )
