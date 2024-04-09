@@ -118,7 +118,12 @@ if __name__ == "__main__":
 
         tuner = Tuner(trainer)
         lr_finder = tuner.lr_find(
-            model, data_module, min_lr=1e-6, max_lr=3e-3, num_training=200, mode="linear"
+            model,
+            data_module,
+            min_lr=1e-6,
+            max_lr=3e-3,
+            num_training=200,
+            mode="linear",
         )
         print(lr_finder.results)
 

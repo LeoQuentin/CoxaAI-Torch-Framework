@@ -1,6 +1,7 @@
 import torchvision.transforms as transforms
 from coxaaitorch.augmentation import ImageNetPolicy
 import logging
+import functools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -8,10 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def optional_preprocessor(augmentation_func):
-    """
-    Decorator to apply a hugging face preprocessor to the output of an augmentation function.
-    """
-
+    @functools.wraps(augmentation_func)
     def wrapper(image, size=(800, 800), channels=1, preprocessor=None):
         # Apply the augmentation function
         image = augmentation_func(image, size, channels)
@@ -32,8 +30,7 @@ def optional_preprocessor(augmentation_func):
                 # Check if the size of the augmented image matches the preprocessor's expected size
                 if image.shape[-2:] != size:
                     logger.warning(
-                        f"""Mismatched sizes: Augmentation size {size}
-                        does not match preprocessor size {image.shape[-2:]}"""
+                        f"Mismatched sizes: Augmentation size {size} does not match preprocessor size {image.shape[-2:]}" # noqa
                     )
             except Exception as e:
                 logger.error(f"Error occurred during preprocessing: {str(e)}")

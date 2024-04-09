@@ -13,6 +13,6 @@ module load singularity
 SIFFILE="/mnt/users/leobakh/VET_project/VET-Special-syllabus/singularity/container_CoxaAI_Poetry.sif" ## FILL INN
 ## RUN THE PYTHON SCRIPT
 # Using a singularity container named container_u_net.sif
-srun singularity exec --nv $SIFFILE python SwinBinaryVsMulticlass.py
+singularity exec --nv $SIFFILE python SwinBinaryVsMulticlass.py
 # Send this job into the slurm queue with the following command:
 # >> sbatch test_script_slurm.sh
