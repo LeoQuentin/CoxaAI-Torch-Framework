@@ -31,7 +31,7 @@ def optional_preprocessor(augmentation_func):
                     image = image.squeeze(0)
 
                 # Check if the size of the augmented image matches the preprocessor's expected size
-                if image.shape[-1].item() != size:
+                if image.size(-1) != size:
                     logger.warning(
                         f"Mismatched sizes: Augmentation size {size} does not match preprocessor size {image.shape[-2:].tolist()}" # noqa
                     )
