@@ -66,7 +66,7 @@ class NeuralNetwork(BaseNetwork):
 
 if __name__ == "__main__":
     for binary_or_multiclass in ["binary", "multiclass"]:
-        model_name = "swinv2_base_patch4_window12to24_192to384_22kto1k_ft"
+        model_name = "swin_base_patch4_window12_384_in22k"
         num_classes = 2 if binary_or_multiclass == "binary" else 5
         size = (640, 640)
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         )
 
         # Define the logger
-        logger = CSVLogger(log_dir, name="swinV2" + "-" + binary_or_multiclass)
+        logger = CSVLogger(log_dir, name="swin" + "-" + binary_or_multiclass)
 
         # Define the callbacks
         early_stopping = EarlyStopping(
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         )
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
-            filename=f"swinV2-{binary_or_multiclass}" + "-{epoch:02d}-{val_loss:.2f}",
+            filename=f"swin-{binary_or_multiclass}" + "-{epoch:02d}-{val_loss:.2f}",
             monitor="val_loss",
             save_top_k=1,
             mode="min",
@@ -141,10 +141,13 @@ if __name__ == "__main__":
             log_every_n_steps=training_params["log_every_n_steps"],
             precision=training_params["presicion"],
             accelerator="auto",
+            devices=2,
         )
 
         tuner = Tuner(trainer)
-        lr_finder = tuner.lr_find(model, data_module, min_lr=1e-6, max_lr=3e-3, num_training=200)
+        lr_finder = tuner.lr_find(
+            model, data_module, min_lr=1e-6, max_lr=3e-3, num_training=200
+        )
         print(lr_finder.results)
 
         # Save the resulting plot
