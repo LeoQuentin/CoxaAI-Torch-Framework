@@ -112,6 +112,9 @@ if __name__ == "__main__":
             train_transform=train_transform,
             val_transform=val_transform,
             test_transform=val_transform,
+            train_loader_workers=16,
+            val_loader_workers=8,
+            test_loader_workers=6,
         )
 
         # Define the logger
