@@ -140,8 +140,9 @@ if __name__ == "__main__":
             max_time=timedelta(hours=training_params["max_time_hours"]),
             log_every_n_steps=training_params["log_every_n_steps"],
             precision=training_params["presicion"],
-            accelerator="auto",
+            accelerator="gpu",
             devices=2,
+            strategy="ddp"
         )
 
         tuner = Tuner(trainer)
