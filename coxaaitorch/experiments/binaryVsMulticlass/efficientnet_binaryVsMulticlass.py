@@ -2,7 +2,7 @@ import torch  # noqa
 import os
 from datetime import timedelta
 import dotenv
-from coxaaitorch.augmentation.transforms import no_augmentation, random_augmentation
+from coxaaitorch.augmentation.transforms import no_augmentation, autoaugment_policy_augmentation
 import matplotlib.pyplot as plt
 from functools import partial
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         data_module = H5DataModule.from_base_config(
             {
                 "train_transform": partial(
-                    random_augmentation, size=600, channels=3, preprocessor=preprocessor
+                    autoaugment_policy_augmentation, size=600, channels=3, preprocessor=preprocessor
                 ),
                 "val_transform": partial(
                     no_augmentation, size=600, channels=3, preprocessor=preprocessor
