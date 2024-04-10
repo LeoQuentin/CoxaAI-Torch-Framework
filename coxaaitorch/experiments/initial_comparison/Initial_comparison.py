@@ -17,9 +17,8 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers import CSVLogger
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from coxaaitorch.utilities import H5DataModule
-from coxaaitorch.models import BaseNormalAbnormal
-from coxaaitorch.models import create_model
+from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
+from coxaaitorch.models import BaseNormalAbnormal, create_model
 
 dotenv.load_dotenv()
 
@@ -35,7 +34,6 @@ checkpoint = os.path.join(
 
 models_to_train = [
     "vit-base-patch16-384",
-    "swinv2_base_patch4_window12to24_192to384_22kto1k_ft",
     "swin_base_patch4_window12_384_in22k",
 ]
 
@@ -81,8 +79,9 @@ class NeuralNetwork(BaseNormalAbnormal):
 
 
 if __name__ == "__main__":
+    logger_paths = []
     for model_name in models_to_train:
-        for size in [(384, 384)]:
+        for size in [(384, 384), (640, 640), (800, 800)]:
             # --------------------- Parameters ---------------------
             training_params["size"] = size
             training_params["model_name"] = model_name
@@ -149,3 +148,10 @@ if __name__ == "__main__":
             trainer.fit(model, dm)
 
             trainer.test(model, datamodule=dm)
+
+            logger_paths.append(logger.log_dir)
+
+    metrics = print_experiment_metrics(logger_paths)
+    # open file and write
+    with open(f"{log_dir}/metrics.txt", "w") as file:
+        file.write(metrics)
