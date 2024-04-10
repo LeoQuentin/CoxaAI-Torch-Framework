@@ -11,7 +11,7 @@ def print_experiment_metrics(file_paths):
         best_model_metrics = None
         test_metrics = None
 
-        with open(file_path, 'r') as file:
+        with open(f"{file_path}/metrics.csv", 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if row['val_loss']:
