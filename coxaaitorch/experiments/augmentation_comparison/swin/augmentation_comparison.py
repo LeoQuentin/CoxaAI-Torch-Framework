@@ -5,8 +5,8 @@ import dotenv
 from coxaaitorch.augmentation.transforms import (
     no_augmentation,
     random_augmentation,
-    # autoaugment_policy_augmentation,
-    # light_augmentation,
+    autoaugment_policy_augmentation,
+    light_augmentation,
 )
 import matplotlib.pyplot as plt
 from functools import partial
@@ -21,11 +21,8 @@ from pytorch_lightning.callbacks import (
 )
 from pytorch_lightning.loggers import CSVLogger
 
-# from torch.optim.lr_scheduler import ReduceLROnPlateau
-
-from coxaaitorch.utilities import H5DataModule
-from coxaaitorch.models import BaseNetwork
-from coxaaitorch.models import create_model
+from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
+from coxaaitorch.models import BaseNetwork, create_model
 
 dotenv.load_dotenv()
 
@@ -43,7 +40,7 @@ checkpoint_dir = os.path.join(
 
 training_params = {
     "batch_size": 6,
-    "early_stopping_patience": 25,
+    "early_stopping_patience": 15,
     "max_time_hours": 12,
     "train_folds": [0, 1, 2],
     "val_folds": [3],
@@ -71,9 +68,15 @@ class NeuralNetwork(BaseNetwork):
 
 
 if __name__ == "__main__":
-    for binary_or_multiclass in ["binary", "multiclass"]:
+    logger_directories = []
+    for augmentation_type in [
+        no_augmentation,
+        light_augmentation,
+        random_augmentation,
+        autoaugment_policy_augmentation,
+    ]:
         model_name = "swin_base_patch4_window12_384_in22k"
-        num_classes = 2 if binary_or_multiclass == "binary" else 5
+        num_classes = 2
         size = (640, 640)
 
         # Create the model
@@ -85,7 +88,7 @@ if __name__ == "__main__":
         data_module = H5DataModule.from_base_config(
             {
                 "train_transform": partial(
-                    random_augmentation, size=640, channels=3, preprocessor=preprocessor
+                    augmentation_type, size=640, channels=3, preprocessor=preprocessor
                 ),
                 "val_transform": partial(
                     no_augmentation, size=640, channels=3, preprocessor=preprocessor
@@ -97,7 +100,7 @@ if __name__ == "__main__":
         )
 
         # Define the logger
-        logger = CSVLogger(log_dir, name="swin" + "-" + binary_or_multiclass)
+        logger = CSVLogger(log_dir, name="swin" + "-" + augmentation_type.__name__)
 
         # Define the callbacks
         early_stopping = EarlyStopping(
@@ -105,7 +108,8 @@ if __name__ == "__main__":
         )
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
-            filename=f"swin-{binary_or_multiclass}" + "-{epoch:02d}-{val_loss:.2f}",
+            filename=f"swin-{augmentation_type.__name__}"
+            + "-{epoch:02d}-{val_loss:.2f}",
             monitor="val_loss",
             save_top_k=1,
             mode="min",
@@ -141,3 +145,11 @@ if __name__ == "__main__":
 
         # Test the model
         trainer.test(model, datamodule=data_module)
+
+        # Add logger directory to list
+        logger_directories.append(logger.log_dir)
+
+    # Print the best model metrics
+    printout = print_experiment_metrics(logger_directories)
+    with open(f"{log_dir}/best_model_metrics.txt", "w") as file:
+        file.write(printout)

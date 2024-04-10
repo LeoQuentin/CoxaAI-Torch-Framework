@@ -2,7 +2,10 @@ import torch  # noqa
 import os
 from datetime import timedelta
 import dotenv
-from coxaaitorch.augmentation.transforms import no_augmentation, autoaugment_policy_augmentation
+from coxaaitorch.augmentation.transforms import (
+    no_augmentation,
+    autoaugment_policy_augmentation,
+)
 import matplotlib.pyplot as plt
 from functools import partial
 
@@ -25,9 +28,7 @@ dotenv.load_dotenv()
 
 project_root = os.getenv("PROJECT_ROOT")
 
-log_dir = os.path.join(
-    project_root, "coxaaitorch/experiments/binaryVsMulticlass/logs"
-)
+log_dir = os.path.join(project_root, "coxaaitorch/experiments/binaryVsMulticlass/logs")
 
 checkpoint_dir = os.path.join(
     project_root,
@@ -80,7 +81,10 @@ if __name__ == "__main__":
         data_module = H5DataModule.from_base_config(
             {
                 "train_transform": partial(
-                    autoaugment_policy_augmentation, size=600, channels=3, preprocessor=preprocessor
+                    autoaugment_policy_augmentation,
+                    size=600,
+                    channels=3,
+                    preprocessor=preprocessor,
                 ),
                 "val_transform": partial(
                     no_augmentation, size=600, channels=3, preprocessor=preprocessor
@@ -88,7 +92,9 @@ if __name__ == "__main__":
                 "test_transform": partial(
                     no_augmentation, size=600, channels=3, preprocessor=preprocessor
                 ),
-                "target_var": "target" if binary_or_multiclass == "binary" else "diagnosis",
+                "target_var": (
+                    "target" if binary_or_multiclass == "binary" else "diagnosis"
+                ),
             }
         )
 
@@ -101,7 +107,8 @@ if __name__ == "__main__":
         )
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
-            filename=f"efficientnetb7-{binary_or_multiclass}" + "-{epoch:02d}-{val_loss:.2f}",
+            filename=f"efficientnetb7-{binary_or_multiclass}"
+            + "-{epoch:02d}-{val_loss:.2f}",
             monitor="val_loss",
             save_top_k=1,
             mode="min",
