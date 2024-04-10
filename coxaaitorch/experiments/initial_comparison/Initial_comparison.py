@@ -107,6 +107,9 @@ if __name__ == "__main__":
                 train_transform=partial(light_augmentation, size=size, channels=1),
                 val_transform=partial(no_augmentation, size=size, channels=1),
                 test_transform=partial(no_augmentation, size=size, channels=1),
+                train_loader_workers=16,
+                val_loader_workers=12,
+                test_loader_workers=6,
             )
 
             # --------------------- Train ---------------------
