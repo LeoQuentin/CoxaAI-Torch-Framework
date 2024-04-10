@@ -88,6 +88,7 @@ if __name__ == "__main__":
                 "test_transform": partial(
                     no_augmentation, size=640, channels=3, preprocessor=preprocessor
                 ),
+                "target_var": "target" if binary_or_multiclass == "binary" else "diagnosis",
             }
         )
 
