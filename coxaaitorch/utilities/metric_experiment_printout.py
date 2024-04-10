@@ -2,7 +2,7 @@ import csv
 import os
 
 
-def find_best_model_metrics(file_paths):
+def print_experiment_metrics(file_paths):
     result = ""
 
     for file_path in file_paths:
