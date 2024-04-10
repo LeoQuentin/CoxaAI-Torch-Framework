@@ -108,7 +108,8 @@ def random_augmentation(image, size=(800, 800), channels=1):
         [
             transforms.ToPILImage(),
             transforms.Resize(size),
-            transforms.RandAugment(),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandAugment(num_ops=3, magnitude=2),
             transforms.Grayscale(num_output_channels=channels),
             transforms.ToTensor(),
         ]

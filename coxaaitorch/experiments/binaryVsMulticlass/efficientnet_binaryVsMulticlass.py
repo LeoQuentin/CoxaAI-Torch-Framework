@@ -18,9 +18,8 @@ from pytorch_lightning.loggers import CSVLogger
 
 # from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from coxaaitorch.utilities import H5DataModule
-from coxaaitorch.models import BaseNetwork
-from coxaaitorch.models import create_model
+from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
+from coxaaitorch.models import BaseNetwork, create_model
 
 dotenv.load_dotenv()
 
@@ -61,11 +60,12 @@ class NeuralNetwork(BaseNetwork):
         self.learning_rate = 3e-4
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
         return optimizer
 
 
 if __name__ == "__main__":
+    logger_directories = []
     for binary_or_multiclass in ["binary", "multiclass"]:
         model_name = "efficientnet_b7"
         num_classes = 2 if binary_or_multiclass == "binary" else 5
@@ -88,6 +88,7 @@ if __name__ == "__main__":
                 "test_transform": partial(
                     no_augmentation, size=600, channels=3, preprocessor=preprocessor
                 ),
+                "target_var": "target" if binary_or_multiclass == "binary" else "diagnosis",
             }
         )
 
@@ -136,3 +137,11 @@ if __name__ == "__main__":
 
         # Test the model
         trainer.test(model, datamodule=data_module)
+
+        # Add logger directory to list
+        logger_directories.append(logger.log_dir)
+
+    # Print the best model metrics
+    printout = print_experiment_metrics(logger_directories)
+    with open(f"{log_dir}/best_model_metrics.txt", "w") as file:
+        file.write(printout)
