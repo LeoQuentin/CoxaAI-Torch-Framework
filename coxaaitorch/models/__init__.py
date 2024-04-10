@@ -11,6 +11,7 @@ from coxaaitorch.models.model_implementations.efficientnet import *  # noqa
 from coxaaitorch.models.model_implementations.efficientnetv2 import *  # noqa
 from coxaaitorch.models.model_implementations.ViT import *  # noqa
 from coxaaitorch.models.model_implementations.Swin import *  # noqa
+from coxaaitorch.models.model_implementations.LeVit import *  # noqa
 
 
 __all__ = [  # noqa

@@ -12,6 +12,7 @@ def optional_preprocessor(augmentation_func):
     """
     A decorator to apply a preprocessor (hugging face) to the output of an augmentation function.
     """
+
     @functools.wraps(augmentation_func)
     def wrapper(image, size=(800, 800), channels=1, preprocessor=None):
         # Apply the augmentation function
@@ -33,7 +34,7 @@ def optional_preprocessor(augmentation_func):
                 # Check if the size of the augmented image matches the preprocessor's expected size
                 if image.size(-1) != size:
                     logger.warning(
-                        f"Mismatched sizes: Augmentation size {size} does not match preprocessor size {image.shape[-2:].tolist()}" # noqa
+                        f"Mismatched sizes: Augmentation size {size} does not match preprocessor size {image.shape[-2:].tolist()}"  # noqa
                     )
             except Exception as e:
                 logger.error(f"Error occurred during preprocessing: {str(e)}")
