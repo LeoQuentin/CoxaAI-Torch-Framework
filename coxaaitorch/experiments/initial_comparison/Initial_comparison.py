@@ -65,7 +65,7 @@ class NeuralNetwork(BaseNetwork):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
-            self.parameters(), lr=self.training_params["learning_rate"]
+            self.parameters(), lr=training_params["learning_rate"]
         )
         lr_scheduler = {
             "scheduler": ReduceLROnPlateau(
