@@ -41,7 +41,7 @@ models_to_train = [
 
 training_params = {
     "batch_size": 8,
-    "early_stopping_patience": 20,
+    "early_stopping_patience": 15,
     "max_time_hours": 12,
     "train_folds": [0, 1, 2],
     "val_folds": [3],
@@ -49,7 +49,7 @@ training_params = {
     "log_every_n_steps": 10,
     "presicion": "16-mixed",
     "lr_scheduler_factor": 0.2,
-    "lr_scheduler_patience": 15,
+    "lr_scheduler_patience": 8,
     "learning_rate": 3e-4,
 }
 
