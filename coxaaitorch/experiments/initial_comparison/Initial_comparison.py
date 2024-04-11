@@ -18,7 +18,7 @@ from pytorch_lightning.loggers import CSVLogger
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
-from coxaaitorch.models import BaseNormalAbnormal, create_model
+from coxaaitorch.models import BaseNetwork, create_model
 
 dotenv.load_dotenv()
 
@@ -35,6 +35,8 @@ checkpoint = os.path.join(
 models_to_train = [
     "vit-base-patch16-384",
     "swin_base_patch4_window12_384_in22k",
+    "ResNet-18",
+    "ResNet-50"
 ]
 
 training_params = {
@@ -52,13 +54,14 @@ training_params = {
 }
 
 
-class NeuralNetwork(BaseNormalAbnormal):
-    def __init__(self, model_name, size, training_params, *args, **kwargs):
-        model = create_model(
-            model_name, size=size, pretrained=False, classes=2, channels=1
+class NeuralNetwork(BaseNetwork):
+    def __init__(self, model_name, num_classes, size, *args, **kwargs):
+        self.model_dict = create_model(
+            model_name, size=size, pretrained=False, classes=num_classes, channels=3
         )
-        super().__init__(model=model["model"], *args, **kwargs)
-        self.training_params = training_params
+        model = self.model_dict["model"]
+        super().__init__(model, num_classes=num_classes, *args, **kwargs)
+        self.learning_rate = 3e-4
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
@@ -93,24 +96,22 @@ if __name__ == "__main__":
                 batch_size = 5
             training_params["batch_size"] = batch_size
 
-            model = NeuralNetwork(model_name, size, training_params)
+            model = NeuralNetwork(model_name=model_name, num_classes=2, size=size)
 
             # --------------------- DataModule ---------------------
-
-            dm = H5DataModule(
-                os.getenv("DATA_FILE"),
-                batch_size=training_params["batch_size"],
-                train_folds=training_params["train_folds"],
-                val_folds=training_params["val_folds"],
-                test_folds=training_params["test_folds"],
-                target_var="target",
-                train_transform=partial(light_augmentation, size=size, channels=1),
-                val_transform=partial(no_augmentation, size=size, channels=1),
-                test_transform=partial(no_augmentation, size=size, channels=1),
-                train_loader_workers=16,
-                val_loader_workers=12,
-                test_loader_workers=6,
-            )
+            data_module = H5DataModule.from_base_config(
+                        {
+                            "train_transform": partial(
+                                light_augmentation, size=size[0], channels=3
+                            ),
+                            "val_transform": partial(
+                                no_augmentation, size=size[0], channels=3
+                            ),
+                            "test_transform": partial(
+                                no_augmentation, size=size[0], channels=3
+                            ),
+                        }
+                    )
 
             # --------------------- Train ---------------------
 
@@ -148,9 +149,9 @@ if __name__ == "__main__":
                 precision=training_params["presicion"],
             )
             # Training
-            trainer.fit(model, dm)
+            trainer.fit(model, data_module)
 
-            trainer.test(model, datamodule=dm)
+            trainer.test(model, datamodule=data_module)
 
             logger_paths.append(logger.log_dir)
 
