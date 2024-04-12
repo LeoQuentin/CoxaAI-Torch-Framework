@@ -14,9 +14,9 @@ def optional_preprocessor(augmentation_func):
     """
 
     @functools.wraps(augmentation_func)
-    def wrapper(image, size=(800, 800), channels=1, preprocessor=None):
+    def wrapper(image, size=(800, 800), channels=1, preprocessor=None, **kwargs):
         # Apply the augmentation function
-        image = augmentation_func(image, size, channels)
+        image = augmentation_func(image, size, channels, **kwargs)
 
         # Apply the preprocessor if provided
         if preprocessor is not None:
