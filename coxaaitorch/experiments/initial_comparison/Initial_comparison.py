@@ -36,7 +36,7 @@ models_to_train = [
     "vit-base-patch16-384",
     "swin_base_patch4_window12_384_in22k",
     "ResNet-18",
-    "ResNet-50"
+    "ResNet-50",
 ]
 
 training_params = {
@@ -100,18 +100,16 @@ if __name__ == "__main__":
 
             # --------------------- DataModule ---------------------
             data_module = H5DataModule.from_base_config(
-                        {
-                            "train_transform": partial(
-                                light_augmentation, size=size[0], channels=3
-                            ),
-                            "val_transform": partial(
-                                no_augmentation, size=size[0], channels=3
-                            ),
-                            "test_transform": partial(
-                                no_augmentation, size=size[0], channels=3
-                            ),
-                        }
-                    )
+                {
+                    "train_transform": partial(
+                        light_augmentation, size=size[0], channels=3
+                    ),
+                    "val_transform": partial(no_augmentation, size=size[0], channels=3),
+                    "test_transform": partial(
+                        no_augmentation, size=size[0], channels=3
+                    ),
+                }
+            )
 
             # --------------------- Train ---------------------
 

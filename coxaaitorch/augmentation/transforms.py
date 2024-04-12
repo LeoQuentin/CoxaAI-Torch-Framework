@@ -100,7 +100,7 @@ def autoaugment_policy_augmentation(image, size=(800, 800), channels=1):
 
 
 @optional_preprocessor
-def random_augmentation(image, size=(800, 800), channels=1):
+def random_augmentation(image, size=(800, 800), channels=1, num_ops=3, magnitude=2):
     # image is a numpy array in the shape (H, W, C)
 
     # Preprocess the image
@@ -109,7 +109,7 @@ def random_augmentation(image, size=(800, 800), channels=1):
             transforms.ToPILImage(),
             transforms.Resize(size),
             transforms.RandomHorizontalFlip(),
-            transforms.RandAugment(num_ops=3, magnitude=2),
+            transforms.RandAugment(num_ops=num_ops, magnitude=magnitude),
             transforms.Grayscale(num_output_channels=channels),
             transforms.ToTensor(),
         ]

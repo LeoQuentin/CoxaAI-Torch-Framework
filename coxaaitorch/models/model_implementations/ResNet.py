@@ -55,6 +55,7 @@ def _create_ResNet(
 
 # ------------------ ResNet ------------------ #
 
+
 @registermodel("ResNet-18")
 def resnet_18(
     size: Tuple[int, int],

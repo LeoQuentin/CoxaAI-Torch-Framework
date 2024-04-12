@@ -6,21 +6,21 @@ def print_experiment_metrics(file_paths):
     result = ""
 
     for file_path in file_paths:
-        best_val_loss = float('inf')
+        best_val_loss = float("inf")
         best_epoch = None
         best_model_metrics = None
         test_metrics = None
 
-        with open(f"{file_path}/metrics.csv", 'r') as file:
+        with open(f"{file_path}/metrics.csv", "r") as file:
             reader = csv.DictReader(file)
             for row in reader:
-                if row['val_loss']:
-                    val_loss = float(row['val_loss'])
+                if row["val_loss"]:
+                    val_loss = float(row["val_loss"])
                     if val_loss < best_val_loss:
                         best_val_loss = val_loss
                         best_model_metrics = row
-                        best_epoch = row['epoch']
-                if row['test_loss']:
+                        best_epoch = row["epoch"]
+                if row["test_loss"]:
                     test_metrics = row
 
         if best_model_metrics:
@@ -31,7 +31,7 @@ def print_experiment_metrics(file_paths):
             result += "Validation Metrics:\n"
             result += "-" * 20 + "\n"
             for metric, value in best_model_metrics.items():
-                if metric.startswith('val_') and value:
+                if metric.startswith("val_") and value:
                     result += f"{metric}: {value}\n"
             result += "\n"
 
@@ -39,7 +39,7 @@ def print_experiment_metrics(file_paths):
                 result += "Test Metrics:\n"
                 result += "-" * 20 + "\n"
                 for metric, value in test_metrics.items():
-                    if metric.startswith('test_') and value:
+                    if metric.startswith("test_") and value:
                         result += f"{metric}: {value}\n"
             else:
                 result += "No test metrics found in the CSV file.\n"
