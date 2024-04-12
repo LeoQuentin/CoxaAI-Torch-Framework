@@ -59,10 +59,10 @@ class NeuralNetwork(BaseNetwork):
         )
         model = self.model_dict["model"]
         super().__init__(model, num_classes=num_classes, *args, **kwargs)
-        self.learning_rate = 5e-6
+        self.learning_rate = 1e-6
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             self.parameters(), lr=training_params["learning_rate"]
         )
         lr_scheduler = {
