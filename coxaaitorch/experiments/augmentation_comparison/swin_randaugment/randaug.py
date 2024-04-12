@@ -48,7 +48,7 @@ training_params = {
     "presicion": "16-mixed",
     "lr_scheduler_factor": 0.2,
     "lr_scheduler_patience": 7,
-    "learning_rate": 5e-6,
+    "learning_rate": 1e-6,
 }
 
 
