@@ -100,7 +100,7 @@ if __name__ == "__main__":
                     size=size[0],
                     channels=3,
                     num_ops=num_ops,
-                    magnitute=magnitude,
+                    magnitude=magnitude,
                     preprocessor=preprocessor,
                 ),
                 "val_transform": partial(
