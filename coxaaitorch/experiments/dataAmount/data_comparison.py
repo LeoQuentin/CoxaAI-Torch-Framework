@@ -85,6 +85,10 @@ if __name__ == "__main__":
         datamodule.prepare_data()
         datamodule.setup()
 
+        train_dataloader = datamodule.train_dataloader()
+        val_dataloader = datamodule.val_dataloader()
+        test_dataloader = datamodule.test_dataloader()
+
         name = f"efficientnet-b5-{str(num_folds)}-{len(datamodule.train_idx)}"
         logger = CSVLogger(
             log_dir,
@@ -92,9 +96,7 @@ if __name__ == "__main__":
         )
 
         # Define the callbacks
-        early_stopping = EarlyStopping(
-            monitor="val_loss", patience=12
-        )
+        early_stopping = EarlyStopping(monitor="val_loss", patience=12)
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
             filename=f"{name}" + "-{epoch:02d}-{val_loss:.2f}",
@@ -114,10 +116,12 @@ if __name__ == "__main__":
         )
 
         # Fit the model
-        trainer.fit(model, datamodule)
+        trainer.fit(
+            model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader
+        )
 
         # Test the model
-        trainer.test(model, datamodule=datamodule)
+        trainer.test(model, test_dataloaders=test_dataloader)
 
         # Add logger directory to list
         logger_directories.append(logger.log_dir)
