@@ -113,7 +113,9 @@ if __name__ == "__main__":
         )
 
         # Define the logger
-        logger = CSVLogger(log_dir, name=f"swin_{size[0]}_binary_randaugment_{num_ops}_{magnitude}")
+        logger = CSVLogger(
+            log_dir, name=f"swin_{size[0]}_binary_randaugment_{num_ops}_{magnitude}"
+        )
 
         # Define the callbacks
         early_stopping = EarlyStopping(
