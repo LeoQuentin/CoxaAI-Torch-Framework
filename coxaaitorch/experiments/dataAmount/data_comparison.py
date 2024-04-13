@@ -1,4 +1,4 @@
-from .new_folds_datamodule import NewFoldsDataModule
+from coxaaitorch.experiments.dataAmount.new_folds_datamodule import NewFoldsDataModule
 from coxaaitorch.utilities import H5FoldDataset, print_experiment_metrics
 import dotenv
 import os
