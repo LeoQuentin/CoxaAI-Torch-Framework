@@ -121,7 +121,7 @@ if __name__ == "__main__":
         )
 
         # Test the model
-        trainer.test(model, test_dataloaders=test_dataloader)
+        trainer.test(model, dataloaders=test_dataloader)
 
         # Add logger directory to list
         logger_directories.append(logger.log_dir)
