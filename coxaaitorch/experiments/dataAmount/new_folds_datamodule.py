@@ -74,7 +74,7 @@ class NewFoldsDataModule(pl.LightningDataModule):
     def setup(self, stage=None):
         train_idx = self.folds[: self.used_folds]
         self.train_idx = np.concatenate(train_idx)
-        self.train_dataset.target_var = self.target_var
+        self.dataset.target_var = self.target_var
         self.train_dataset = torch.utils.data.Subset(self.dataset, self.train_idx)
 
     def train_dataloader(self):
