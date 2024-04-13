@@ -25,7 +25,7 @@ def print_experiment_metrics(file_paths):
 
         if best_model_metrics:
             result += "=" * 50 + "\n"
-            result += f"Best Metrics for {os.path.basename(file_path)}:\n"
+            result += f"Best Metrics for {file_path}:\n"
             result += "=" * 50 + "\n\n"
             result += f"Epoch: {best_epoch}\n\n"
             result += "Validation Metrics:\n"
