@@ -82,6 +82,9 @@ if __name__ == "__main__":
             val_loader_workers=12,
             test_loader_workers=6,
         )
+        datamodule.prepare_data()
+        datamodule.setup()
+
         name = f"efficientnet-b5-{str(num_folds)}-{len(datamodule.train_idx)}"
         logger = CSVLogger(
             log_dir,
