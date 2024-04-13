@@ -81,7 +81,7 @@ class NeuralNetwork(BaseNetwork):
 
 if __name__ == "__main__":
     logger_directories = []
-    for num_ops, magnitude in product(range(1, 4), range(1, 8)):
+    for num_ops, magnitude in product(range(1, 4), range(8, 11)):
 
         model_name = "swin_base_patch4_window12_384_in22k"
         num_classes = 2
