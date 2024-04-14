@@ -74,7 +74,7 @@ if __name__ == "__main__":
             dataset=initial_dataset,
             val_dataset=val_dataset,
             test_dataset=test_dataset,
-            batch_size=80,
+            batch_size=64,
             dataset_splits=20,
             used_folds=num_folds,
             target_var="target",
