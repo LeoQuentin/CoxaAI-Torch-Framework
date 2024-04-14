@@ -74,12 +74,12 @@ if __name__ == "__main__":
             dataset=initial_dataset,
             val_dataset=val_dataset,
             test_dataset=test_dataset,
-            batch_size=64,
+            batch_size=80,
             dataset_splits=20,
             used_folds=num_folds,
             target_var="target",
             train_loader_workers=16,
-            val_loader_workers=12,
+            val_loader_workers=16,
             test_loader_workers=6,
         )
         datamodule.prepare_data()
