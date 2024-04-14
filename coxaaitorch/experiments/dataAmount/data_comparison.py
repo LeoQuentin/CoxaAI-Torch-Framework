@@ -44,7 +44,7 @@ class NeuralNetwork(BaseNetwork):
 
 initial_dataset = H5FoldDataset(
     file_path=os.getenv("DATA_FILE"),
-    folds=[1, 2, 3],
+    folds=[0, 1, 2],
     target_var="diagnosis",
     transform=partial(no_augmentation, size=384, channels=1),
 )
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             dataset=initial_dataset,
             val_dataset=val_dataset,
             test_dataset=test_dataset,
-            batch_size=32,
+            batch_size=64,
             dataset_splits=20,
             used_folds=num_folds,
             target_var="target",
