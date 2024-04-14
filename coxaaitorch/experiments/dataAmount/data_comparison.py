@@ -64,7 +64,7 @@ test_dataset = H5FoldDataset(
 if __name__ == "__main__":
     logger_directories = []
     for num_folds in range(1, 20):
-        model_name = "efficientnet_b5"
+        model_name = "efficientnet_b3"
         size = (384, 384)
 
         # Create the model
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         val_dataloader = datamodule.val_dataloader()
         test_dataloader = datamodule.test_dataloader()
 
-        name = f"efficientnet-b5-{str(num_folds)}-{len(datamodule.train_idx)}"
+        name = f"efficientnet-b3-{str(num_folds)}-{len(datamodule.train_idx)}"
         logger = CSVLogger(
             log_dir,
             name=name,
