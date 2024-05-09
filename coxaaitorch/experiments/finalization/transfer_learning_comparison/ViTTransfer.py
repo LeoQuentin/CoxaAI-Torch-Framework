@@ -19,6 +19,9 @@ from pytorch_lightning.callbacks import (
     ModelCheckpoint,
     LearningRateMonitor,
 )
+
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
 from pytorch_lightning.loggers import CSVLogger
 
 from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
@@ -63,8 +66,21 @@ class NeuralNetwork(BaseNetwork):
         self.learning_rate = 5e-6
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
-        return optimizer
+        optimizer = torch.optim.Adam(
+            self.parameters(), lr=self.learning_rate
+        )
+        lr_scheduler = {
+            "scheduler": ReduceLROnPlateau(
+                optimizer,
+                mode="min",
+                factor=training_params["lr_scheduler_factor"],
+                patience=training_params["lr_scheduler_patience"],
+            ),
+            "monitor": "val_loss",
+            "interval": "epoch",
+            "frequency": 1,
+        }
+        return [optimizer], [lr_scheduler]
 
 
 if __name__ == "__main__":
@@ -96,7 +112,7 @@ if __name__ == "__main__":
     )
 
     # Define the logger
-    logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}_no_transfer")
+    logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}_transfer")
 
     # Define the callbacks
     early_stopping = EarlyStopping(
@@ -104,7 +120,7 @@ if __name__ == "__main__":
     )
     model_checkpoint = ModelCheckpoint(
         dirpath=checkpoint_dir,
-        filename=f"{model_name}-{str(size)}_no_transfer"
+        filename=f"{model_name}-{str(size)}_transfer"
         + "-{epoch:02d}-{val_loss:.2f}",
         monitor="val_loss",
         save_top_k=1,

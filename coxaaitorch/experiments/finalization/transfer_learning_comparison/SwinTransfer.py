@@ -19,13 +19,13 @@ from pytorch_lightning.callbacks import (
     ModelCheckpoint,
     LearningRateMonitor,
 )
+
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
 from pytorch_lightning.loggers import CSVLogger
 
 from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
 from coxaaitorch.models import BaseNetwork, create_model
-
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-
 
 dotenv.load_dotenv()
 
@@ -59,15 +59,15 @@ training_params = {
 class NeuralNetwork(BaseNetwork):
     def __init__(self, model_name, num_classes, size, *args, **kwargs):
         self.model_dict = create_model(
-            model_name, size=size, pretrained=False, classes=num_classes, channels=3
+            model_name, size=size, pretrained=True, classes=num_classes, channels=3
         )
         model = self.model_dict["model"]
         super().__init__(model, num_classes=num_classes, *args, **kwargs)
-        self.learning_rate = 3e-4
+        self.learning_rate = 5e-6
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
-            self.parameters(), lr=training_params["learning_rate"]
+            self.parameters(), lr=self.learning_rate
         )
         lr_scheduler = {
             "scheduler": ReduceLROnPlateau(
@@ -94,23 +94,25 @@ if __name__ == "__main__":
     # Create the model
     model = NeuralNetwork(model_name=model_name, num_classes=num_classes, size=size)
 
+    preprocessor = model.model_dict["processor"]
+
     # Define the data module
     data_module = H5DataModule.from_base_config(
         {
             "train_transform": partial(
-                light_augmentation, size=size, channels=3
+                light_augmentation, size=size, channels=3, preprocessor=preprocessor
             ),
             "val_transform": partial(
-                no_augmentation, size=size, channels=3
+                no_augmentation, size=size, channels=3, preprocessor=preprocessor
             ),
             "test_transform": partial(
-                no_augmentation, size=size, channels=3
+                no_augmentation, size=size, channels=3, preprocessor=preprocessor
             ),
         }
     )
 
     # Define the logger
-    logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}_no_transfer")
+    logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}_transfer")
 
     # Define the callbacks
     early_stopping = EarlyStopping(
@@ -118,7 +120,7 @@ if __name__ == "__main__":
     )
     model_checkpoint = ModelCheckpoint(
         dirpath=checkpoint_dir,
-        filename=f"{model_name}-{str(size)}_no_transfer"
+        filename=f"{model_name}-{str(size)}_transfer"
         + "-{epoch:02d}-{val_loss:.2f}",
         monitor="val_loss",
         save_top_k=1,
