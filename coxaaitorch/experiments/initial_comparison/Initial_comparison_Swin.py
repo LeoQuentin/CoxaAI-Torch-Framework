@@ -36,7 +36,7 @@ checkpoint = os.path.join(
 )  # noqa
 
 models_to_train = [
-    "vit-base-patch16-384",
+    # "vit-base-patch16-384",
     "swin_base_patch4_window12_384_in22k",
     # "ResNet-18",
     # "ResNet-50",
