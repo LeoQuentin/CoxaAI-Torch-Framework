@@ -75,12 +75,12 @@ if __name__ == "__main__":
         (800, 800)
     ]:
         if sizes[0] == 384:
-            training_params["batch_size"] = 16
-        elif sizes[0] == 640:
             training_params["batch_size"] = 10
+        elif sizes[0] == 640:
+            training_params["batch_size"] = 5
         elif sizes[0] == 800:
-            training_params["batch_size"] = 8
-        model_name = "efficientnet_v2_m"
+            training_params["batch_size"] = 4
+        model_name = "swin_base_patch4_window12_384_in22k"
         num_classes = 2
         size = sizes[0]
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         )
 
         # Define the logger
-        logger = CSVLogger(log_dir, name="efficientnetv2_m" + "-" + str(size))
+        logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}")
 
         # Define the callbacks
         early_stopping = EarlyStopping(
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         )
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
-            filename=f"efficientnetv2_m-{str(size)}"
+            filename=f"{model_name}-{str(size)}"
             + "-{epoch:02d}-{val_loss:.2f}",
             monitor="val_loss",
             save_top_k=1,
