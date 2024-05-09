@@ -24,6 +24,9 @@ from pytorch_lightning.loggers import CSVLogger
 from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
 from coxaaitorch.models import BaseNetwork, create_model
 
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+
 dotenv.load_dotenv()
 
 project_root = os.getenv("PROJECT_ROOT")
@@ -63,8 +66,21 @@ class NeuralNetwork(BaseNetwork):
         self.learning_rate = 3e-4
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
-        return optimizer
+        optimizer = torch.optim.Adam(
+            self.parameters(), lr=training_params["learning_rate"]
+        )
+        lr_scheduler = {
+            "scheduler": ReduceLROnPlateau(
+                optimizer,
+                mode="min",
+                factor=training_params["lr_scheduler_factor"],
+                patience=training_params["lr_scheduler_patience"],
+            ),
+            "monitor": "val_loss",
+            "interval": "epoch",
+            "frequency": 1,
+        }
+        return [optimizer], [lr_scheduler]
 
 
 if __name__ == "__main__":
