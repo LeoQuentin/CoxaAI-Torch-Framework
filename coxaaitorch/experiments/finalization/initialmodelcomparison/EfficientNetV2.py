@@ -80,7 +80,7 @@ if __name__ == "__main__":
             training_params["batch_size"] = 10
         elif sizes[0] == 800:
             training_params["batch_size"] = 8
-        model_name = "efficientnet_v2_m"
+        model_name = "efficientnet_b3"
         num_classes = 2
         size = sizes[0]
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         )
 
         # Define the logger
-        logger = CSVLogger(log_dir, name="efficientnetv2_m" + "-" + str(size))
+        logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}")
 
         # Define the callbacks
         early_stopping = EarlyStopping(
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         )
         model_checkpoint = ModelCheckpoint(
             dirpath=checkpoint_dir,
-            filename=f"efficientnetv2_m-{str(size)}"
+            filename=f"{model_name}-{str(size)}"
             + "-{epoch:02d}-{val_loss:.2f}",
             monitor="val_loss",
             save_top_k=1,
