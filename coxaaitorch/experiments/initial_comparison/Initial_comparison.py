@@ -17,14 +17,17 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers import CSVLogger
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from coxaaitorch.utilities import H5DataModule, print_experiment_metrics
+from coxaaitorch.utilities import (
+    H5DataModule,
+    # print_experiment_metrics
+    )
 from coxaaitorch.models import BaseNetwork, create_model
 
 dotenv.load_dotenv()
 
 project_root = os.getenv("PROJECT_ROOT")
 log_dir = os.path.join(
-    project_root, "coxaaitorch/experiments/initial_comparison/outputs"
+    project_root, "coxaaitorch/experiments/initial_comparison/outputsViT"
 )  # noqa
 
 checkpoint = os.path.join(
@@ -34,9 +37,9 @@ checkpoint = os.path.join(
 
 models_to_train = [
     "vit-base-patch16-384",
-    "swin_base_patch4_window12_384_in22k",
-    "ResNet-18",
-    "ResNet-50",
+    # "swin_base_patch4_window12_384_in22k",
+    # "ResNet-18",
+    # "ResNet-50",
 ]
 
 training_params = {
@@ -153,7 +156,7 @@ if __name__ == "__main__":
 
             logger_paths.append(logger.log_dir)
 
-    metrics = print_experiment_metrics(logger_paths)
-    # open file and write
-    with open(f"{log_dir}/metrics.txt", "w") as file:
-        file.write(metrics)
+    # metrics = print_experiment_metrics(logger_paths)
+    # # open file and write
+    # with open(f"{log_dir}/metrics.txt", "w") as file:
+     #    file.write(metrics)
