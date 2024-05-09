@@ -51,7 +51,7 @@ training_params = {
     "log_every_n_steps": 10,
     "presicion": "16-mixed",
     "lr_scheduler_factor": 0.2,
-    "lr_scheduler_patience": 15,
+    "lr_scheduler_patience": 10,
     "learning_rate": 3e-4,
 }
 
