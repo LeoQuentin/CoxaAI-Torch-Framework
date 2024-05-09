@@ -26,6 +26,8 @@ def _create_ViT(
     elif channels:
         model_config.num_channels = channels
 
+    monkey_patch = False
+
     if size and model_config.image_size != size:
         model_config.image_size = size
         monkey_patch = True
