@@ -94,7 +94,7 @@ if __name__ == "__main__":
             if size == (384, 384):
                 batch_size = 10
             elif size == (640, 640):
-                batch_size = 8
+                batch_size = 6
             elif size == (800, 800):
                 batch_size = 5
             training_params["batch_size"] = batch_size
