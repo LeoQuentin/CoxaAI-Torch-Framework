@@ -94,7 +94,7 @@ if __name__ == "__main__":
     )
 
     # Define the logger
-    logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}")
+    logger = CSVLogger(log_dir, name=f"{model_name}-{str(size)}_no_transfer")
 
     # Define the callbacks
     early_stopping = EarlyStopping(
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     )
     model_checkpoint = ModelCheckpoint(
         dirpath=checkpoint_dir,
-        filename=f"{model_name}-{str(size)}"
+        filename=f"{model_name}-{str(size)}_no_transfer"
         + "-{epoch:02d}-{val_loss:.2f}",
         monitor="val_loss",
         save_top_k=1,
