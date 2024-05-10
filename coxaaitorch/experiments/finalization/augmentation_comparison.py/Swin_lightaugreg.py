@@ -30,12 +30,12 @@ dotenv.load_dotenv()
 project_root = os.getenv("PROJECT_ROOT")
 
 log_dir = os.path.join(
-    project_root, "coxaaitorch/experiments/finalization/transfer_learning_comparison/logs"
+    project_root, "coxaaitorch/experiments/finalization/augmentation_comparison/logs"
 )
 
 checkpoint_dir = os.path.join(
     project_root,
-    "coxaaitorch/experiments/finalization/transfer_learning_comparison/checkpoints",
+    "coxaaitorch/experiments/finalization/augmentation_comparison/checkpoints",
 )
 
 augmentation_type = light_augmentation
