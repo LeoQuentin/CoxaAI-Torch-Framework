@@ -86,8 +86,8 @@ class NeuralNetwork(BaseNetwork):
 if __name__ == "__main__":
     logger_directories = []
     for sizes in [
-        (384, 384),
-        (640, 640),
+        # (384, 384),
+        # (640, 640),
         (800, 800)
     ]:
         if sizes[0] == 384:
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         elif sizes[0] == 640:
             training_params["batch_size"] = 5
         elif sizes[0] == 800:
-            training_params["batch_size"] = 4
+            training_params["batch_size"] = 2
         model_name = "swin_base_patch4_window12_384_in22k"
         num_classes = 2
         size = sizes[0]
