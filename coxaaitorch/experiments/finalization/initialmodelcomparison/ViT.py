@@ -92,9 +92,9 @@ if __name__ == "__main__":
         if sizes[0] == 384:
             training_params["batch_size"] = 10
         elif sizes[0] == 640:
-            training_params["batch_size"] = 3
+            training_params["batch_size"] = 8
         elif sizes[0] == 800:
-            training_params["batch_size"] = 2
+            training_params["batch_size"] = 6
         model_name = "vit-base-patch16-384"
         num_classes = 2
         size = sizes[0]
@@ -114,6 +114,7 @@ if __name__ == "__main__":
                 "test_transform": partial(
                     no_augmentation, size=size, channels=3
                 ),
+                "batch_size": training_params["batch_size"],
             }
         )
 

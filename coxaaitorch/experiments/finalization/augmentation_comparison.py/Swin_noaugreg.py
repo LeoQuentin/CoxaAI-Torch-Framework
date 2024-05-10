@@ -42,17 +42,17 @@ augmentation_type = no_augmentation
 
 
 training_params = {
-    "batch_size": 6,
-    "early_stopping_patience": 15,
-    "max_time_hours": 12,
+    "batch_size": 16,
+    "early_stopping_patience": 12,
+    "max_time_hours": 6,
     "train_folds": [0, 1, 2],
     "val_folds": [3],
     "test_folds": [4],
     "log_every_n_steps": 10,
     "presicion": "16-mixed",
     "lr_scheduler_factor": 0.2,
-    "lr_scheduler_patience": 10,
-    "learning_rate": 3e-4,
+    "lr_scheduler_patience": 7,
+    "learning_rate": 1e-6,
 }
 
 
@@ -63,7 +63,7 @@ class NeuralNetwork(BaseNetwork):
         )
         model = self.model_dict["model"]
         super().__init__(model, num_classes=num_classes, *args, **kwargs)
-        self.learning_rate = 5e-6
+        self.learning_rate = 1e-6
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(
